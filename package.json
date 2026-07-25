@@ -16,9 +16,6 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "optionalDependencies": {
-    "@rolldown/binding-win32-x64-msvc": "^1.2.0"
-  },
   "devDependencies": {
     "concurrently": "^9.2.4"
   }
