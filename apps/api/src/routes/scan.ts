@@ -1,24 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import { requireAuth } from '../middleware/auth.js';
+import { readDb, writeDb } from '../store/database.js';
 import { analyzeRisk } from '../services/riskAnalyzer.js';
-
-const scanRequestSchema = z.object({
-  type: z.enum(['email', 'sms', 'url', 'qr', 'screenshot']),
-  content: z.string().optional(),
-  url: z.string().optional()
-}).refine((data) => data.content || data.url, {
-  message: 'Provide content or a URL to scan.'
-});
-
-export const scanRouter = Router();
-
-scanRouter.post('/', (request, response) => {
-  const parsed = scanRequestSchema.safeParse(request.body);
-
-  if (!parsed.success) {
-    response.status(400).json({ error: parsed.error.flatten() });
-    return;
-  }
-
-  response.json(analyzeRisk(parsed.data));
-});
+const schema=z.object({type:z.enum(['url','website','email','email_text','screenshot','image','pdf','qr','phone','sms','whatsapp','social','file','text']),content:z.string().max(20000).optional(),url:z.string().max(2048).optional(),fileName:z.string().max(255).optional()}).refine(d=>d.content||d.url||d.fileName,{message:'Provide content, URL, or file metadata to scan.'});
+export const scanRouter=Router();
+scanRouter.use(requireAuth);
+scanRouter.post('/', async(req,res)=>{ const p=schema.safeParse(req.body); if(!p.success)return res.status(400).json({error:p.error.flatten()}); const result=analyzeRisk(p.data); const db=await readDb(); db.scans.unshift({...result,userId:req.user!.id,raw:p.data.content}); db.notifications.unshift({id:result.id,userId:req.user!.id,title:'Scan completed',message:`${result.threatLevel} result with score ${result.score}.`,severity:result.score>=70?'critical':'info',read:false,createdAt:result.createdAt}); await writeDb(db); res.status(201).json(result); });
+scanRouter.get('/history', async(req,res)=>{ const db=await readDb(); res.json({scans:db.scans.filter(s=>s.userId===req.user!.id).map(({raw,userId,...s})=>s)}); });
+scanRouter.patch('/:id/favorite', async(req,res)=>{ const db=await readDb(); const s=db.scans.find(x=>x.id===req.params.id&&x.userId===req.user!.id); if(!s)return res.status(404).json({error:'Scan not found'}); s.favorite=!s.favorite; await writeDb(db); res.json({favorite:s.favorite}); });
+scanRouter.delete('/:id', async(req,res)=>{ const db=await readDb(); db.scans=db.scans.filter(s=>!(s.id===req.params.id&&s.userId===req.user!.id)); await writeDb(db); res.status(204).end(); });

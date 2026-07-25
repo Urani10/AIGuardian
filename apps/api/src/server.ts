@@ -2,18 +2,17 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import { env } from './config/env.js';
+import { adminRouter } from './routes/admin.js';
+import { authRouter } from './routes/auth.js';
 import { healthRouter } from './routes/health.js';
 import { scanRouter } from './routes/scan.js';
-
-const app = express();
-
-app.use(helmet());
-app.use(cors({ origin: env.CLIENT_ORIGIN }));
-app.use(express.json({ limit: '2mb' }));
-
-app.use('/api/health', healthRouter);
-app.use('/api/scan', scanRouter);
-
-app.listen(env.PORT, () => {
-  console.log(`ScanShield AI API running on port ${env.PORT}`);
-});
+import { settingsRouter } from './routes/settings.js';
+import { rateLimit } from './middleware/rateLimit.js';
+const app=express();
+app.use(helmet({contentSecurityPolicy:false}));
+app.use(cors({origin:env.CLIENT_ORIGIN,credentials:true}));
+app.use(rateLimit());
+app.use(express.json({limit:'10mb'}));
+app.use('/api/health',healthRouter); app.use('/api/auth',authRouter); app.use('/api/scan',scanRouter); app.use('/api/settings',settingsRouter); app.use('/api/admin',adminRouter);
+app.use((err:any,_req:any,res:any,_next:any)=>res.status(500).json({error:err.message??'Server error'}));
+app.listen(env.PORT,()=>console.log(`ScanShield AI API running on port ${env.PORT}`));
