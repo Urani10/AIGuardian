@@ -1,212 +1,352 @@
 import type { ScanInput, ScanResult, ThreatLevel, ThreatStatus } from '../types/scan.js';
 
-interface Rule {
+type Severity = 'low' | 'medium' | 'high' | 'critical';
+
+interface Evidence {
   id: string;
-  keywords: string[];
+  indicator: string;
   weight: number;
+  severity: Severity;
   reasonEn: string;
   reasonSq: string;
-  indicator: string;
 }
+
+interface Rule {
+  id: string;
+  indicator: string;
+  weight: number;
+  severity: Severity;
+  patterns: RegExp[];
+  reasonEn: string;
+  reasonSq: string;
+}
+
+const TRUSTED_DOMAINS = new Set([
+  'paypal.com',
+  'google.com',
+  'apple.com',
+  'microsoft.com',
+  'binance.com',
+  'amazon.com',
+  'facebook.com',
+  'instagram.com'
+]);
+
+const HIGH_RISK_TLDS = new Set(['zip', 'mov', 'xyz', 'top', 'tk', 'ml', 'gq', 'cf', 'info', 'click', 'work', 'rest']);
+const SHORTENERS = new Set(['bit.ly', 'tinyurl.com', 't.co', 'cutt.ly', 'is.gd', 'rebrand.ly', 'ow.ly']);
 
 const RULES: Rule[] = [
   {
-    id: 'homograph_domain',
-    keywords: ['paypai.com', 'paypaI.com', 'googie.com', 'appl-id.com', 'banka-al-verify', 'secure-paypal', 'bickchain', 'binance-verify'],
-    weight: 45,
-    reasonEn: 'Detected typosquatting / look-alike domain designed to impersonate a trusted service (e.g. paypaI with uppercase I).',
-    reasonSq: 'U identifikua domain i rremë (typosquatting) i cili ngjan me shërbime të besuara (p.sh. paypaI me "I" të madhe në vend të "l").',
-    indicator: 'Fake Domain / Typosquatting'
-  },
-  {
-    id: 'urgent_pressure',
-    keywords: ['urgent', 'urgjente', 'bllokuar', 'bllokohet', 'within 24 hours', 'brenda 24 oreve', 'immediately', 'menjehere', 'account suspended', 'llogaria u pezullua', 'final notice', 'njoftim i fundit'],
-    weight: 20,
-    reasonEn: 'Detected psychological manipulation creating artificial urgency to panic the target into acting without thinking.',
-    reasonSq: 'U identifikua presion psikologjik dhe urgjencë fallco që synon të krijojë panik te përdoruesi.',
-    indicator: 'Psychological Urgency'
-  },
-  {
     id: 'credential_harvesting',
-    keywords: ['verify password', 'verifiko fjalekalimin', 'confirm pin', 'llogaria juaj', 'login now', 'kyqu ketu', 'reset account', 'verifiko llogarine', 'update credentials'],
-    weight: 25,
-    reasonEn: 'Detected request for sensitive login credentials, PINs, or password verification links.',
-    reasonSq: 'Kërkesë direkte për verifikimin e fjalëkalimit, PIN-it ose të dhënave sensitive të hyrjes.',
-    indicator: 'Credential Harvesting'
+    indicator: 'Credential Harvesting',
+    weight: 24,
+    severity: 'high',
+    patterns: [
+      /\b(verify|confirm|update|reset)\s+(your\s+)?(password|pin|credentials|account)\b/i,
+      /\b(verifiko|konfirmo|perditeso)\s+(fjalekalimin|pin|llogarine)\b/i,
+      /\blogin\s+(now|immediately|to\s+continue)\b/i
+    ],
+    reasonEn: 'The content asks the user to verify or update credentials, a common phishing objective.',
+    reasonSq: 'Permbajtja kerkon verifikim ose perditesim kredencialesh, nje objektiv tipik phishing.'
   },
   {
-    id: 'crypto_wallet_drain',
-    keywords: ['connect wallet', 'claim airdrop', 'approve token', 'crypto giveaway', 'usdt gift', 'seed phrase', 'frazat e sigurise', 'private key'],
-    weight: 35,
-    reasonEn: 'Detected crypto wallet drainer request or fake giveaway seeking private key / approval permissions.',
-    reasonSq: 'Tentativë për marrjen e kontrollit të kuletës kripto (Wallet Drainer / Kërkesë për seed phrase).',
-    indicator: 'Crypto Scam / Wallet Drainer'
+    id: 'urgency_pressure',
+    indicator: 'Artificial Urgency',
+    weight: 16,
+    severity: 'medium',
+    patterns: [
+      /\b(urgent|immediately|final notice|within 24 hours|account suspended|limited time)\b/i,
+      /\b(urgjente|menjehere|njoftim i fundit|brenda 24 oreve|bllokohet|pezullohet)\b/i
+    ],
+    reasonEn: 'The message uses time pressure or account-loss threats to reduce careful verification.',
+    reasonSq: 'Mesazhi perdor presion kohe ose kercenim bllokimi per te ulur verifikimin e kujdesshem.'
   },
   {
-    id: 'fake_invoice_wire',
-    keywords: ['invoice overdue', 'fature e papaguar', 'wire transfer', 'dergo me banke', 'overdue payment', 'bank details changed', 'ndryshuan te dhenat e bankes'],
+    id: 'payment_redirection',
+    indicator: 'Payment Redirection',
+    weight: 22,
+    severity: 'high',
+    patterns: [
+      /\b(wire transfer|bank details changed|new bank account|offshore account|overdue invoice)\b/i,
+      /\b(iban|swift)\b.*\b(urgent|overdue|changed|new)\b/i
+    ],
+    reasonEn: 'The content resembles invoice or payment redirection fraud.',
+    reasonSq: 'Permbajtja ngjan me mashtrim faturash ose ndryshim te rreme te te dhenave te pageses.'
+  },
+  {
+    id: 'crypto_drainer',
+    indicator: 'Crypto Wallet Drainer',
     weight: 30,
-    reasonEn: 'Detected fake invoice pattern requesting wire transfer to an unverified offshore bank account.',
-    reasonSq: 'Faturë fiktive ose ndryshim i dyshimtë i të dhënave bankare për transferta monetare (CEO Fraud / Fake Invoice).',
-    indicator: 'Fake Invoice Fraud'
+    severity: 'critical',
+    patterns: [
+      /\b(connect wallet|approve token|seed phrase|private key|claim airdrop|crypto giveaway)\b/i,
+      /\b(usdt|airdrop|wallet)\b.*\b(claim|approve|connect|gift)\b/i
+    ],
+    reasonEn: 'The message asks for wallet connection, token approval, or private recovery material.',
+    reasonSq: 'Mesazhi kerkon lidhje kuletash, miratim tokeni ose te dhena private rikuperimi.'
   },
   {
-    id: 'suspicious_link',
-    keywords: ['http://', 'bit.ly/', 'tinyurl.com/', '.info/', '.xyz/', '.top/', '.rf.gd/', '.tk/', '.ml/'],
-    weight: 18,
-    reasonEn: 'Detected unencrypted HTTP URL or high-risk top-level domain / shortened URL obfuscation.',
-    reasonSq: 'Përdorim i link-ut të paencriptuar HTTP, shkurtuesve të link-ut ose domain-eve me rrezik të lartë (.xyz, .info).',
-    indicator: 'Suspicious Link / Obfuscation'
+    id: 'gift_card_payment',
+    indicator: 'Irreversible Payment Request',
+    weight: 22,
+    severity: 'high',
+    patterns: [
+      /\b(gift card|steam card|apple card|send code|voucher code)\b/i,
+      /\b(karte dhurate|dergo kodin|kod kuponi)\b/i
+    ],
+    reasonEn: 'The content requests irreversible payment through gift cards or voucher codes.',
+    reasonSq: 'Permbajtja kerkon pagese te pakthyeshme me karta dhurate ose kode kuponi.'
   },
   {
-    id: 'gift_card_romance',
-    keywords: ['gift card', 'blej karte', 'steam card', 'apple gift card', 'send code', 'dergo kodin', 'romance scam', 'nevoji urgjente per para'],
-    weight: 30,
-    reasonEn: 'Detected gift card payment request or romance/social engineering pressure pattern.',
-    reasonSq: 'Kërkesë për pagesë me karta dhuratë (Gift Cards) ose inxhinieri sociale me pretekst personal.',
-    indicator: 'Gift Card / Social Engineering'
+    id: 'attachment_lure',
+    indicator: 'Risky Attachment Lure',
+    weight: 12,
+    severity: 'medium',
+    patterns: [
+      /\b(open|download|enable macros|view document|invoice attached)\b/i,
+      /\.(exe|scr|js|vbs|iso|img|zip)\b/i
+    ],
+    reasonEn: 'The wording or file metadata encourages opening a potentially risky attachment.',
+    reasonSq: 'Teksti ose metadata e skedarit nxit hapjen e nje bashkengjitjeje potencialisht te rrezikshme.'
   }
 ];
 
+function normalizeText(input: ScanInput): string {
+  return `${input.url ?? ''} ${input.content ?? ''} ${input.fileName ?? ''}`
+    .normalize('NFKC')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function candidateUrls(text: string): URL[] {
+  const matches = text.match(/https?:\/\/[^\s<>"')]+|(?:[a-z0-9-]+\.)+[a-z]{2,}(?:\/[^\s<>"')]+)?/gi) ?? [];
+  return matches.flatMap(value => {
+    const normalized = value.startsWith('http') ? value : `https://${value}`;
+    try {
+      return [new URL(normalized)];
+    } catch {
+      return [];
+    }
+  });
+}
+
+function levenshtein(a: string, b: string): number {
+  const dp = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j += 1) dp[0][j] = j;
+  for (let i = 1; i <= a.length; i += 1) {
+    for (let j = 1; j <= b.length; j += 1) {
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+  }
+  return dp[a.length][b.length];
+}
+
+function registrableDomain(hostname: string): string {
+  const parts = hostname.toLowerCase().split('.').filter(Boolean);
+  return parts.length <= 2 ? parts.join('.') : parts.slice(-2).join('.');
+}
+
+function domainStem(domain: string): string {
+  return domain.split('.')[0].replace(/[^a-z0-9]/g, '');
+}
+
+function urlEvidence(urls: URL[]): { evidence: Evidence[]; safetyCredits: number } {
+  const evidence: Evidence[] = [];
+  let safetyCredits = 0;
+
+  for (const url of urls) {
+    const host = url.hostname.toLowerCase();
+    const domain = registrableDomain(host);
+    const tld = domain.split('.').at(-1) ?? '';
+    const stem = domainStem(domain).replace(/1/g, 'l').replace(/0/g, 'o');
+
+    if (url.protocol === 'http:') {
+      evidence.push({
+        id: `http_${host}`,
+        indicator: 'Unencrypted HTTP Link',
+        weight: 10,
+        severity: 'medium',
+        reasonEn: `The link uses unencrypted HTTP: ${host}.`,
+        reasonSq: `Linku perdor HTTP te paenkriptuar: ${host}.`
+      });
+    }
+
+    if (HIGH_RISK_TLDS.has(tld)) {
+      evidence.push({
+        id: `tld_${domain}`,
+        indicator: 'High-Risk Domain TLD',
+        weight: 14,
+        severity: 'medium',
+        reasonEn: `The domain uses a TLD commonly abused in phishing campaigns: .${tld}.`,
+        reasonSq: `Domain-i perdor nje TLD qe abuzohet shpesh ne phishing: .${tld}.`
+      });
+    }
+
+    if (SHORTENERS.has(domain)) {
+      evidence.push({
+        id: `shortener_${domain}`,
+        indicator: 'Shortened Link',
+        weight: 16,
+        severity: 'medium',
+        reasonEn: `The URL is shortened through ${domain}, hiding the final destination.`,
+        reasonSq: `URL-ja eshte shkurtuar me ${domain}, duke fshehur destinacionin final.`
+      });
+    }
+
+    for (const trusted of TRUSTED_DOMAINS) {
+      const trustedStem = domainStem(trusted);
+      const distance = levenshtein(stem, trustedStem);
+      const containsBrand = stem.includes(trustedStem) && domain !== trusted;
+      if (domain !== trusted && (distance === 1 || containsBrand)) {
+        evidence.push({
+          id: `lookalike_${domain}_${trusted}`,
+          indicator: 'Look-Alike Brand Domain',
+          weight: containsBrand ? 26 : 34,
+          severity: 'critical',
+          reasonEn: `${domain} closely resembles ${trusted} but is not the official domain.`,
+          reasonSq: `${domain} ngjan shume me ${trusted}, por nuk eshte domain zyrtar.`
+        });
+      }
+    }
+
+    if (TRUSTED_DOMAINS.has(domain) && url.protocol === 'https:') {
+      safetyCredits += 14;
+    }
+  }
+
+  return { evidence, safetyCredits: Math.min(20, safetyCredits) };
+}
+
+function ruleEvidence(text: string): Evidence[] {
+  return RULES.flatMap(rule => {
+    if (!rule.patterns.some(pattern => pattern.test(text))) return [];
+    return [{
+      id: rule.id,
+      indicator: rule.indicator,
+      weight: rule.weight,
+      severity: rule.severity,
+      reasonEn: rule.reasonEn,
+      reasonSq: rule.reasonSq
+    }];
+  });
+}
+
+function uniqueEvidence(items: Evidence[]): Evidence[] {
+  const seen = new Set<string>();
+  return items.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+}
+
 function determineStatus(score: number): { status: ThreatStatus; statusEn: string; level: ThreatLevel } {
+  if (score >= 85) return { status: 'Mashtrim i Konfirmuar', statusEn: 'Confirmed Scam', level: 'Critical' };
+  if (score >= 70) return { status: 'Mashtrim i Konfirmuar', statusEn: 'Confirmed Scam', level: 'High Risk' };
+  if (score >= 35) return { status: 'Suspekt', statusEn: 'Suspicious', level: 'Medium Risk' };
+  if (score >= 18) return { status: 'I Sigurt', statusEn: 'Low Risk', level: 'Low Risk' };
+  return { status: 'I Sigurt', statusEn: 'Safe', level: 'Safe' };
+}
+
+function recommendations(score: number): { sq: string; en: string[] } {
   if (score >= 70) {
-    return { status: 'Mashtrim i Konfirmuar', statusEn: 'Confirmed Scam', level: score >= 85 ? 'Critical' : 'High Risk' };
+    return {
+      sq: 'Mos klikoni linqe, mos jepni kredenciale dhe mos hapni bashkengjitje. Bllokoni derguesin dhe raportojeni menjehere.',
+      en: [
+        'Do not click links, enter credentials, or open attachments.',
+        'Block the sender and report the message to your security team.',
+        'Change passwords immediately if you already submitted credentials.'
+      ]
+    };
   }
-  if (score >= 30) {
-    return { status: 'Suspekt', statusEn: 'Suspicious', level: 'Medium Risk' };
+  if (score >= 35) {
+    return {
+      sq: 'Verifikoni derguesin nga kanal zyrtar dhe hapni sherbimin vetem duke shkruar domain-in zyrtar ne browser.',
+      en: [
+        'Verify the sender through an official channel.',
+        'Open the service by typing the official domain directly.',
+        'Do not share passwords, payment details, or one-time codes.'
+      ]
+    };
   }
-  return { status: 'I Sigurt', statusEn: 'Safe', level: score >= 15 ? 'Low Risk' : 'Safe' };
+  return {
+    sq: 'Nuk u gjeten sinjale te forta mashtrimi. Vazhdoni me kujdes standard dhe kontrolloni domain-in para se te jepni te dhena.',
+    en: ['No strong fraud signals were detected. Continue with normal caution and verify domains before sharing data.']
+  };
 }
 
-function generateEducationSq(type: string, matchedRules: Rule[], score: number): string {
-  if (score < 30) {
-    return 'Ky element duket i sigurt. Nuk u gjetën shenja tipike të mashtrimit apo faqeve të rreme. Gjithmonë sigurohuni që faqa ku po hyni ka certifikatë të vlefshme SSL (https://) dhe domain-in zyrtar të shërbimit.';
+function education(score: number, evidence: Evidence[]): { sq: string; en: string } {
+  const top = evidence[0]?.indicator ?? 'clean content';
+  if (score >= 70) {
+    return {
+      sq: `Rreziku kryesor eshte ${top}. Sulmuesit kombinojne domain-e te ngjashem, urgjence dhe kerkesa kredencialesh per te krijuar vendime te nxituara.`,
+      en: `The primary risk is ${top}. Attackers combine look-alike domains, urgency, and credential requests to push rushed decisions.`
+    };
   }
-
-  const hasHomograph = matchedRules.some(r => r.id === 'homograph_domain');
-  const hasUrgency = matchedRules.some(r => r.id === 'urgent_pressure');
-  const hasCrypto = matchedRules.some(r => r.id === 'crypto_wallet_drain');
-  const hasInvoice = matchedRules.some(r => r.id === 'fake_invoice_wire');
-  const hasCredential = matchedRules.some(r => r.id === 'credential_harvesting');
-
-  if (hasHomograph) {
-    return 'Hakerët kanë përdorur një teknikë të quajtur "Typosquatting" ose "Homograph Attack". Ata regjistrojnë emra domain-esh që duken pothuajse identikë me faqen origjinale (p.sh. duke zëvendësuar shkronjën "l" të vogël me "I" të madhe) për t\'ju mashtruar të shkruani të dhënat tuaja të hyrjes në faqen e tyre të rreme.';
+  if (score >= 35) {
+    return {
+      sq: `Analiza gjeti sinjale te dyshimta si ${top}. Keto nuk konfirmojne gjithmone mashtrim, por kerkojne verifikim jashte mesazhit.`,
+      en: `The analysis found suspicious signals such as ${top}. These do not always confirm fraud, but they require verification outside the message.`
+    };
   }
-  if (hasCrypto) {
-    return 'Mashtruesit përdorin kontrata inteligjente të dëmshme ("Wallet Drainers") ose dhurata të rreme (giveaways). Nëse lidhni kuletën tuaj apo jepni fjalët e sigurisë (seed phrase), ata mund t\'ju boshatisin të gjitha aktivet kripto pa pasur nevojë për miratim të dytë.';
-  }
-  if (hasInvoice) {
-    return 'Kjo është një teknikë e njohur si "Mashtrimi me Fatura të Rreme" (Fake Invoice Scam). Sulmuesi dërgon një faturë urgjente me të dhëna bankare të ndryshuara duke pretenduar se është furnitor apo partner biznesi për të vjedhur fonde direkte.';
-  }
-  if (hasUrgency || hasCredential) {
-    return 'Sulmuesit përdorin "Inxhinierinë Sociale" dhe panikun artificial. Duke pretenduar se llogaria juaj do të bllokohet brenda pak orësh, ata ju shtyjnë të vepron pa menduar gjatë dhe të klikoni në mezahe apo linke ku ju vjedhin fjalëkalimin.';
-  }
-  if (type === 'qr') {
-    return 'Kjo njihet si "Quishing" (Phishing me QR Kod). Sulmuesit fshehin linqe të dëmshme pas kodeve QR me qëllim që të anashkalojnë filtrat mbrojtës të email-it ose kompjuterit tuaj.';
-  }
-  if (type === 'sms' || type === 'whatsapp') {
-    return 'Kjo është një teknikë e njohur si "Smishing" (SMS Phishing). Sulmuesi përdor SMS ose mesazhe me numra të rremë për t\'ju bindur të klikoni në linqe mashtruese.';
-  }
-
-  return 'Mashtruesit përdorin faqe dhe mesazhe të rreme që imitojnë kompani të njohura. Qëllimi i tyre është t\'ju marrin të dhënat personale, kartat e kreditit ose fjalëkalimet duke keqpërdorur besimin tuaj.';
-}
-
-function generateEducationEn(type: string, matchedRules: Rule[], score: number): string {
-  if (score < 30) {
-    return 'This element appears safe. No traditional phishing or malicious domain indicators were detected. Always verify that websites use HTTPS and official domain names.';
-  }
-  const hasHomograph = matchedRules.some(r => r.id === 'homograph_domain');
-  if (hasHomograph) {
-    return 'Attackers used "Typosquatting" / "Homograph Attack". They register look-alike domains (e.g. paypaI with uppercase I) to trick you into entering credentials on a spoofed site.';
-  }
-  return 'Attackers use social engineering and fake login portals to capture credentials and financial information by creating artificial urgency.';
+  return {
+    sq: 'Analiza nuk gjeti kombinim te forte sinjalesh phishing. Rezultati i ulet nuk zevendeson kujdesin per domain-e, bashkengjitje dhe kerkesa pagesash.',
+    en: 'The analysis did not find a strong combination of phishing signals. A low score does not replace caution around domains, attachments, and payment requests.'
+  };
 }
 
 export function analyzeRisk(input: ScanInput): ScanResult {
   const start = Date.now();
-  const rawText = `${input.content ?? ''} ${input.url ?? ''} ${input.fileName ?? ''}`;
-  const normalized = rawText.toLowerCase();
+  const text = normalizeText(input);
+  const urls = candidateUrls(text);
+  const { evidence: urlSignals, safetyCredits } = urlEvidence(urls);
+  const signals = uniqueEvidence([...urlSignals, ...ruleEvidence(text)]);
+  const rawScore = signals.reduce((sum, signal) => sum + signal.weight, 0);
+  const typeRisk = input.type === 'qr' ? 8 : input.type === 'pdf' || input.type === 'screenshot' ? 5 : 0;
+  const emptyPenalty = text.length < 12 ? 8 : 0;
+  const score = Math.max(0, Math.min(99, Math.round(rawScore + typeRisk + emptyPenalty - safetyCredits)));
+  const { status, statusEn, level: threatLevel } = determineStatus(score);
+  const rec = recommendations(score);
+  const edu = education(score, signals);
+  const confidence = Math.max(52, Math.min(98, 58 + signals.length * 9 + Math.min(16, Math.floor(text.length / 80)) + (urls.length ? 8 : 0)));
 
-  const matchedRules: Rule[] = [];
-  let addedScore = 0;
-
-  for (const rule of RULES) {
-    const hit = rule.keywords.some(kw => normalized.includes(kw.toLowerCase()));
-    if (hit) {
-      matchedRules.push(rule);
-      addedScore += rule.weight;
-    }
-  }
-
-  // Base calculation
-  let baseScore = input.type === 'url' || input.type === 'qr' ? 10 : 5;
-  if (normalized.includes('paypai') || normalized.includes('paypai.com') || normalized.includes('paypai-')) {
-    addedScore += 40;
-  }
-
-  let finalScore = Math.min(99, Math.max(5, baseScore + addedScore));
-  if (matchedRules.length === 0 && !normalized.includes('paypai')) {
-    finalScore = 12;
-  }
-
-  const { status, statusEn, level: threatLevel } = determineStatus(finalScore);
-
-  const indicators = matchedRules.map(r => r.indicator);
-  if (indicators.length === 0 && finalScore < 30) {
-    indicators.push('Verified SSL / Clean Content');
-  }
-
-  const reasonsSq = matchedRules.length
-    ? matchedRules.map(r => r.reasonSq)
-    : ['Përmbajtja nuk përmban kërkesa për fjalëkalime, transferta parash apo linqe të dyshimta.'];
-
-  const reasonsEn = matchedRules.length
-    ? matchedRules.map(r => r.reasonEn)
-    : ['Content did not request sensitive credentials, wire transfer, or risky off-platform actions.'];
-
-  const recommendationSq = finalScore >= 70
-    ? 'MOS klikoni asnjë link, MOS plotësoni formularë dhe MOS hapni bashkëngjitje. Bllokoni dërguesin dhe raportojeni menjanëherë!'
-    : finalScore >= 30
-    ? 'Tregoni kujdes të shtuar. Verifikoni adresën e dërguesit dhe hyni në faqen zyrtare direkt nga shfletuesi (browser).'
-    : 'Përmbajtja duket e sigurt, por ruani gjithmonë kujdesin standard gjatë lundrimit online.';
-
-  const recommendationsEn = finalScore >= 70
-    ? ['Do NOT click any links, enter credentials, or open attachments.', 'Block sender immediately and report the threat.', 'Change passwords if you previously entered details on this link.']
-    : finalScore >= 30
-    ? ['Exercise caution before proceeding.', 'Verify sender identity through official channels.', 'Do not share sensitive passwords or payment details.']
-    : ['Content looks safe. Practice standard online security hygiene.'];
-
-  const educationSq = generateEducationSq(input.type, matchedRules, finalScore);
-  const educationEn = generateEducationEn(input.type, matchedRules, finalScore);
-
-  const confidence = Math.min(99, 65 + matchedRules.length * 8 + (rawText.length > 30 ? 10 : 0));
+  const reasons = signals.length
+    ? signals.map(signal => signal.reasonEn)
+    : ['No credential harvesting, payment redirection, suspicious URL, or high-pressure language was detected.'];
+  const reasonsSq = signals.length
+    ? signals.map(signal => signal.reasonSq)
+    : ['Nuk u gjet kerkese per kredenciale, ridrejtim pagese, URL e dyshimte ose presion urgjence.'];
 
   return {
     id: 'sc_' + Math.random().toString(36).slice(2, 11),
-    score: finalScore,
+    score,
     threatLevel,
     status,
     statusEn,
     confidence,
-    explanation: matchedRules.length
-      ? `ScanShield AI detektoi ${matchedRules.length} tregues të mundshëm rreziku me nivel rreziku ${finalScore}%.`
-      : 'Analiza e ScanShield AI nuk gjeti tregues mashtrimi apo linqe të rrezikshme.',
-    explanationSq: matchedRules.length
-      ? `ScanShield AI detektoi ${matchedRules.length} tregues të mundshëm rreziku me nivel rreziku ${finalScore}%.`
-      : 'Analiza e ScanShield AI nuk gjeti tregues mashtrimi apo linqe të rrezikshme.',
-    indicators,
-    reasons: reasonsEn,
+    explanation: signals.length
+      ? `AIGuardian found ${signals.length} risk signal${signals.length === 1 ? '' : 's'} and assigned a ${score}% risk score.`
+      : `AIGuardian found no strong fraud indicators and assigned a ${score}% risk score.`,
+    explanationSq: signals.length
+      ? `AIGuardian gjeti ${signals.length} sinjale rreziku dhe vendosi skor rreziku ${score}%.`
+      : `AIGuardian nuk gjeti tregues te forte mashtrimi dhe vendosi skor rreziku ${score}%.`,
+    indicators: signals.length ? signals.map(signal => signal.indicator) : ['No Strong Fraud Signal'],
+    reasons,
     reasonsSq,
-    recommendations: recommendationsEn,
-    recommendationSq,
-    education: educationSq,
-    educationEn,
+    recommendations: rec.en,
+    recommendationSq: rec.sq,
+    education: edu.sq,
+    educationEn: edu.en,
     nextSteps: [
-      'Ruani këtë raport për historikun e sigurisë.',
-      'Ndarja e raportit me ekipin tuaj të IT/Security.',
-      'Aktivizoni vërtetimin me dy faktorë (2FA) në llogaritë tuaja.'
+      'Save this report in the security history.',
+      'Verify suspicious senders through an independent trusted channel.',
+      'Enable two-factor authentication on sensitive accounts.'
     ],
-    timeTakenMs: Date.now() - start + Math.floor(Math.random() * 120 + 80),
+    timeTakenMs: Date.now() - start,
     createdAt: new Date().toISOString(),
     type: input.type,
     favorite: false

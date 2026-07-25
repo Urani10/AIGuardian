@@ -5,7 +5,7 @@ import {
   Trash2, Globe, Lock, Sun, Moon, BookOpen, BarChart3,
   Sparkles, RefreshCw, Shield, User, LogOut,
   Settings, Eye, EyeOff, AlertOctagon, Menu, X,
-  LockKeyhole, TrendingUp, Activity, Search
+  LockKeyhole, Activity, Search
 } from 'lucide-react';
 import { SentientAuthAura, AuraState } from './components/SentientAuthAura';
 import logoImg from './assets/logo.png';
@@ -286,13 +286,7 @@ export function App() {
   const t = T[lang];
 
   // Auth State
-  const [user, setUser] = useState<UserProfile | null>({
-    id: 'usr_8829',
-    name: 'Alex Vance',
-    email: 'alex.vance@aiguardian.ai',
-    role: 'analyst',
-    plan: 'AIGuardian Pro Shield'
-  });
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [authForm, setAuthForm] = useState({ name: '', email: '', password: '' });
@@ -314,7 +308,7 @@ export function App() {
   const [scanType, setScanType] = useState<ScanInputType>('url');
   const [inputUrl, setInputUrl] = useState('http://paypaI-security-verify.com/login');
   const [inputContent, setInputContent] = useState('URGJENTE: Llogaria juaj do te bllokohet brenda 24 oreve! Klikoni te verifikoni fjalekalimin: http://paypaI-security-verify.com/login');
-  const [fileName, setFileName] = useState('');
+  const [fileName] = useState('');
   const [isScanning, setIsScanning] = useState(false);
 
   // Results & History
@@ -352,6 +346,54 @@ export function App() {
     return () => window.removeEventListener('resize', handler);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    const loadSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!res.ok) {
+          if (!cancelled) setUser(null);
+          return;
+        }
+        const data = await res.json();
+        if (!cancelled) {
+          setUser({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            plan: data.user.role === 'admin' ? 'AIGuardian Admin Shield' : 'AIGuardian Shield'
+          });
+        }
+      } catch {
+        if (!cancelled) setUser(null);
+      }
+    };
+    void loadSession();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadHistory = async () => {
+      if (!user) {
+        setHistory([]);
+        setCurrentResult(null);
+        return;
+      }
+      try {
+        const res = await fetch('/api/scan/history', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setHistory(Array.isArray(data.scans) ? data.scans : []);
+      } catch {
+        if (!cancelled) setHistory([]);
+      }
+    };
+    void loadHistory();
+    return () => { cancelled = true; };
+  }, [user]);
+
   const handleInputChange = (field: 'name' | 'email' | 'password', val: string) => {
     setAuthForm(prev => ({ ...prev, [field]: val }));
     setKeystrokeCount(c => c + 1);
@@ -369,6 +411,7 @@ export function App() {
       const res = await fetch(`/api/auth/${authMode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ name: authForm.name, email: authForm.email, password: authForm.password, remember: true })
       });
 
@@ -376,7 +419,13 @@ export function App() {
         const data = await res.json();
         setAuraState('accepted');
         setTimeout(() => {
-          setUser({ id: data.user.id, name: data.user.name, email: data.user.email, role: data.user.role, plan: 'AIGuardian Enterprise Shield' });
+          setUser({
+            id: data.user.id,
+            name: data.user.name,
+            email: data.user.email,
+            role: data.user.role,
+            plan: data.user.role === 'admin' ? 'AIGuardian Admin Shield' : 'AIGuardian Shield'
+          });
           setShowAuthModal(false);
           setAuraState('idle');
           showToast(t.loginSuccess);
@@ -389,37 +438,32 @@ export function App() {
         showToast(t.invalidCredsToast);
       }
     } catch {
-      if (authForm.password === 'wrong' || authForm.password === 'invalid') {
-        setAuraState('rejected');
-        setIsShaking(true);
-        setTimeout(() => setIsShaking(false), 500);
-        setAuthError(t.invalidCreds);
-      } else {
-        setAuraState('accepted');
-        setTimeout(() => {
-          setUser({
-            id: 'usr_' + Math.random().toString(36).slice(2, 7),
-            name: authForm.name || authForm.email.split('@')[0] || 'Security Analyst',
-            email: authForm.email || 'analyst@aiguardian.ai',
-            role: 'analyst',
-            plan: 'AIGuardian Pro Shield'
-          });
-          setShowAuthModal(false);
-          setAuraState('idle');
-          showToast(t.loginSuccess);
-        }, 1200);
-      }
+      setAuraState('rejected');
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+      setAuthError(lang === 'sq'
+        ? 'Autentifikimi nuk mund te verifikohet. Kontrolloni lidhjen me serverin dhe provoni perseri.'
+        : 'Authentication could not be verified. Check the server connection and try again.');
+      showToast(t.invalidCredsToast);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {
+      // Clear local state even if the network request fails.
+    }
     setUser(null);
+    setHistory([]);
+    setCurrentResult(null);
     setShowProfileDropdown(false);
     showToast(t.loggedOut);
   };
 
+  /*
   // Local Risk Analyzer
-  const runLocalScan = (type: ScanInputType, urlVal: string, contentVal: string, fileVal: string): ScanResult => {
+  const legacyRunLocalScan = (type: ScanInputType, urlVal: string, contentVal: string, fileVal: string): ScanResult => {
     const combined = `${urlVal} ${contentVal} ${fileVal}`.toLowerCase();
     let score = 12;
     const reasonsSq: string[] = [];
@@ -516,9 +560,15 @@ export function App() {
       favorite: false
     };
   };
+  */
 
   const handleRunScan = async () => {
     if (!inputUrl && !inputContent && !fileName) return;
+    if (!user) {
+      openAuthModal('login');
+      showToast(lang === 'sq' ? 'Ju duhet te hyni per te bere skanime.' : 'Please log in before running a scan.');
+      return;
+    }
     setIsScanning(true);
     setCurrentResult(null);
 
@@ -526,6 +576,7 @@ export function App() {
       const res = await fetch('/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ type: scanType, url: inputUrl, content: inputContent, fileName })
       });
 
@@ -533,18 +584,18 @@ export function App() {
         const data = await res.json();
         setCurrentResult(data);
         setHistory(prev => [data, ...prev]);
+        showToast(t.scanComplete);
+      } else if (res.status === 401 || res.status === 403) {
+        setUser(null);
+        openAuthModal('login');
+        showToast(lang === 'sq' ? 'Sesioni ka skaduar. Hyni perseri.' : 'Session expired. Please log in again.');
       } else {
-        const localData = runLocalScan(scanType, inputUrl, inputContent, fileName);
-        setCurrentResult(localData);
-        setHistory(prev => [localData, ...prev]);
+        showToast(lang === 'sq' ? 'Skanimi deshtoi. Kontrolloni te dhenat dhe provoni perseri.' : 'Scan failed. Check the input and try again.');
       }
     } catch {
-      const localData = runLocalScan(scanType, inputUrl, inputContent, fileName);
-      setCurrentResult(localData);
-      setHistory(prev => [localData, ...prev]);
+      showToast(lang === 'sq' ? 'Serveri nuk u arrit. Provoni perseri pas pak.' : 'Server could not be reached. Try again shortly.');
     } finally {
       setIsScanning(false);
-      showToast(t.scanComplete);
     }
   };
 
@@ -556,17 +607,37 @@ export function App() {
     showToast(`${t.sampleLoaded}: ${sample.label}`);
   };
 
-  const toggleFavorite = (id: string) => {
+  const toggleFavorite = async (id: string) => {
+    const previousHistory = history;
+    const previousResult = currentResult;
     setHistory(prev => prev.map(s => s.id === id ? { ...s, favorite: !s.favorite } : s));
     if (currentResult?.id === id) {
       setCurrentResult(prev => prev ? { ...prev, favorite: !prev.favorite } : null);
     }
+    try {
+      const res = await fetch(`/api/scan/${id}/favorite`, { method: 'PATCH', credentials: 'include' });
+      if (!res.ok) throw new Error('Favorite update failed');
+    } catch {
+      setHistory(previousHistory);
+      setCurrentResult(previousResult);
+      showToast(lang === 'sq' ? 'Nuk u ruajt ndryshimi i favorites.' : 'Favorite update could not be saved.');
+    }
   };
 
-  const deleteScan = (id: string) => {
+  const deleteScan = async (id: string) => {
+    const previousHistory = history;
+    const previousResult = currentResult;
     setHistory(prev => prev.filter(s => s.id !== id));
     if (currentResult?.id === id) setCurrentResult(null);
-    showToast(t.deleted);
+    try {
+      const res = await fetch(`/api/scan/${id}`, { method: 'DELETE', credentials: 'include' });
+      if (!res.ok && res.status !== 404) throw new Error('Delete failed');
+      showToast(t.deleted);
+    } catch {
+      setHistory(previousHistory);
+      setCurrentResult(previousResult);
+      showToast(lang === 'sq' ? 'Analiza nuk mund te fshihej.' : 'Scan could not be deleted.');
+    }
   };
 
   const filteredHistory = useMemo(() => {

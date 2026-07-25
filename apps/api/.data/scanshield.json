@@ -39,129 +39,13 @@
         "twoFactor": false
       },
       "activity": [
+        "Login at 2026-07-25T11:00:16.757Z",
+        "Login at 2026-07-25T10:59:56.166Z",
         "Account created"
       ]
     }
   ],
   "scans": [
-    {
-      "id": "sc_957pm60si",
-      "score": 25,
-      "threatLevel": "Low Risk",
-      "status": "I Sigurt",
-      "statusEn": "Safe",
-      "confidence": 83,
-      "explanation": "ScanShield AI detektoi 1 tregues të mundshëm rreziku me nivel rreziku 25%.",
-      "explanationSq": "ScanShield AI detektoi 1 tregues të mundshëm rreziku me nivel rreziku 25%.",
-      "indicators": [
-        "Psychological Urgency"
-      ],
-      "reasons": [
-        "Detected psychological manipulation creating artificial urgency to panic the target into acting without thinking."
-      ],
-      "reasonsSq": [
-        "U identifikua presion psikologjik dhe urgjencë fallco që synon të krijojë panik te përdoruesi."
-      ],
-      "recommendations": [
-        "Content looks safe. Practice standard online security hygiene."
-      ],
-      "recommendationSq": "Përmbajtja duket e sigurt, por ruani gjithmonë kujdesin standard gjatë lundrimit online.",
-      "education": "Ky element duket i sigurt. Nuk u gjetën shenja tipike të mashtrimit apo faqeve të rreme. Gjithmonë sigurohuni që faqa ku po hyni ka certifikatë të vlefshme SSL (https://) dhe domain-in zyrtar të shërbimit.",
-      "educationEn": "This element appears safe. No traditional phishing or malicious domain indicators were detected. Always verify that websites use HTTPS and official domain names.",
-      "nextSteps": [
-        "Ruani këtë raport për historikun e sigurisë.",
-        "Ndarja e raportit me ekipin tuaj të IT/Security.",
-        "Aktivizoni vërtetimin me dy faktorë (2FA) në llogaritë tuaja."
-      ],
-      "timeTakenMs": 147,
-      "createdAt": "2026-07-25T10:44:39.995Z",
-      "type": "email",
-      "favorite": false,
-      "userId": "u4gi17cbyams07v1rt",
-      "raw": "URGJENTE: Prek linkun jep te dhenat e bankes dhe merr 1000$ shperblim"
-    },
-    {
-      "id": "sc_nrsefdm5f",
-      "score": 30,
-      "threatLevel": "Medium Risk",
-      "status": "Suspekt",
-      "statusEn": "Suspicious",
-      "confidence": 83,
-      "explanation": "ScanShield AI detektoi 1 tregues të mundshëm rreziku me nivel rreziku 30%.",
-      "explanationSq": "ScanShield AI detektoi 1 tregues të mundshëm rreziku me nivel rreziku 30%.",
-      "indicators": [
-        "Psychological Urgency"
-      ],
-      "reasons": [
-        "Detected psychological manipulation creating artificial urgency to panic the target into acting without thinking."
-      ],
-      "reasonsSq": [
-        "U identifikua presion psikologjik dhe urgjencë fallco që synon të krijojë panik te përdoruesi."
-      ],
-      "recommendations": [
-        "Exercise caution before proceeding.",
-        "Verify sender identity through official channels.",
-        "Do not share sensitive passwords or payment details."
-      ],
-      "recommendationSq": "Tregoni kujdes të shtuar. Verifikoni adresën e dërguesit dhe hyni në faqen zyrtare direkt nga shfletuesi (browser).",
-      "education": "Sulmuesit përdorin \"Inxhinierinë Sociale\" dhe panikun artificial. Duke pretenduar se llogaria juaj do të bllokohet brenda pak orësh, ata ju shtyjnë të vepron pa menduar gjatë dhe të klikoni në mezahe apo linke ku ju vjedhin fjalëkalimin.",
-      "educationEn": "Attackers use social engineering and fake login portals to capture credentials and financial information by creating artificial urgency.",
-      "nextSteps": [
-        "Ruani këtë raport për historikun e sigurisë.",
-        "Ndarja e raportit me ekipin tuaj të IT/Security.",
-        "Aktivizoni vërtetimin me dy faktorë (2FA) në llogaritë tuaja."
-      ],
-      "timeTakenMs": 87,
-      "createdAt": "2026-07-25T10:43:52.642Z",
-      "type": "url",
-      "favorite": false,
-      "userId": "u4gi17cbyams07v1rt",
-      "raw": "URGJENTE: shiko dhe fito vetem ne interex"
-    },
-    {
-      "id": "sc_p1hq6qthu",
-      "score": 99,
-      "threatLevel": "Critical",
-      "status": "Mashtrim i Konfirmuar",
-      "statusEn": "Confirmed Scam",
-      "confidence": 99,
-      "explanation": "ScanShield AI detektoi 3 tregues të mundshëm rreziku me nivel rreziku 99%.",
-      "explanationSq": "ScanShield AI detektoi 3 tregues të mundshëm rreziku me nivel rreziku 99%.",
-      "indicators": [
-        "Psychological Urgency",
-        "Credential Harvesting",
-        "Suspicious Link / Obfuscation"
-      ],
-      "reasons": [
-        "Detected psychological manipulation creating artificial urgency to panic the target into acting without thinking.",
-        "Detected request for sensitive login credentials, PINs, or password verification links.",
-        "Detected unencrypted HTTP URL or high-risk top-level domain / shortened URL obfuscation."
-      ],
-      "reasonsSq": [
-        "U identifikua presion psikologjik dhe urgjencë fallco që synon të krijojë panik te përdoruesi.",
-        "Kërkesë direkte për verifikimin e fjalëkalimit, PIN-it ose të dhënave sensitive të hyrjes.",
-        "Përdorim i link-ut të paencriptuar HTTP, shkurtuesve të link-ut ose domain-eve me rrezik të lartë (.xyz, .info)."
-      ],
-      "recommendations": [
-        "Do NOT click any links, enter credentials, or open attachments.",
-        "Block sender immediately and report the threat.",
-        "Change passwords if you previously entered details on this link."
-      ],
-      "recommendationSq": "MOS klikoni asnjë link, MOS plotësoni formularë dhe MOS hapni bashkëngjitje. Bllokoni dërguesin dhe raportojeni menjanëherë!",
-      "education": "Sulmuesit përdorin \"Inxhinierinë Sociale\" dhe panikun artificial. Duke pretenduar se llogaria juaj do të bllokohet brenda pak orësh, ata ju shtyjnë të vepron pa menduar gjatë dhe të klikoni në mezahe apo linke ku ju vjedhin fjalëkalimin.",
-      "educationEn": "Attackers use social engineering and fake login portals to capture credentials and financial information by creating artificial urgency.",
-      "nextSteps": [
-        "Ruani këtë raport për historikun e sigurisë.",
-        "Ndarja e raportit me ekipin tuaj të IT/Security.",
-        "Aktivizoni vërtetimin me dy faktorë (2FA) në llogaritë tuaja."
-      ],
-      "timeTakenMs": 126,
-      "createdAt": "2026-07-25T10:43:17.538Z",
-      "type": "url",
-      "favorite": false,
-      "userId": "u4gi17cbyams07v1rt",
-      "raw": "URGJENTE: Llogaria juaj do te bllokohet brenda 24 oreve! Klikoni te verifikoni fjalekalimin: http://paypaI-security-verify.com/login"
-    },
     {
       "id": "sc_swxbopi5x",
       "score": 99,
@@ -208,6 +92,141 @@
     }
   ],
   "notifications": [
+    {
+      "id": "sc_4df57iih8",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:59:18.925Z"
+    },
+    {
+      "id": "sc_3de1j1zy3",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:59:00.448Z"
+    },
+    {
+      "id": "sc_jnjgu0sw2",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:58:48.328Z"
+    },
+    {
+      "id": "sc_xm85xcuta",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:58:30.928Z"
+    },
+    {
+      "id": "sc_e8k9rnixq",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:58:16.413Z"
+    },
+    {
+      "id": "sc_23myx7zbk",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Safe result with score 16.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:21:27.947Z"
+    },
+    {
+      "id": "sc_ugfcn931p",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:20:49.549Z"
+    },
+    {
+      "id": "sc_pbemb1ueu",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:19:38.600Z"
+    },
+    {
+      "id": "sc_xqni3watc",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:19:16.070Z"
+    },
+    {
+      "id": "sc_8vyyui3am",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:18:48.505Z"
+    },
+    {
+      "id": "sc_roa7hw9y9",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:18:35.886Z"
+    },
+    {
+      "id": "sc_c2997c0zm",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:18:22.586Z"
+    },
+    {
+      "id": "sc_kbcpq7gz5",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:17:29.044Z"
+    },
+    {
+      "id": "sc_yl1iwkrj2",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T11:17:18.002Z"
+    },
+    {
+      "id": "sc_hhca1mbm4",
+      "userId": "u4gi17cbyams07v1rt",
+      "title": "Scan completed",
+      "message": "Critical result with score 99.",
+      "severity": "critical",
+      "read": false,
+      "createdAt": "2026-07-25T11:00:01.319Z"
+    },
     {
       "id": "sc_957pm60si",
       "userId": "u4gi17cbyams07v1rt",
