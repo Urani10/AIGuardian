@@ -17,6 +17,7 @@
         "twoFactor": false
       },
       "activity": [
+        "Login at 2026-07-25T13:21:47.003Z",
         "Login at 2026-07-25T10:16:52.769Z",
         "Login at 2026-07-25T10:15:02.227Z",
         "Account created"
@@ -46,6 +47,45 @@
     }
   ],
   "scans": [
+    {
+      "id": "sc_5wa6i2tm4",
+      "score": 26,
+      "threatLevel": "Low Risk",
+      "status": "I Sigurt",
+      "statusEn": "Low Risk",
+      "confidence": 86,
+      "explanation": "AIGuardian found 2 risk signals and assigned a 26% risk score.",
+      "explanationSq": "AIGuardian gjeti 2 sinjale rreziku dhe vendosi skor rreziku 26%.",
+      "indicators": [
+        "Unencrypted HTTP Link",
+        "Artificial Urgency"
+      ],
+      "reasons": [
+        "The link uses unencrypted HTTP: paypai-security-verify.com.",
+        "The message uses time pressure or account-loss threats to reduce careful verification."
+      ],
+      "reasonsSq": [
+        "Linku perdor HTTP te paenkriptuar: paypai-security-verify.com.",
+        "Mesazhi perdor presion kohe ose kercenim bllokimi per te ulur verifikimin e kujdesshem."
+      ],
+      "recommendations": [
+        "No strong fraud signals were detected. Continue with normal caution and verify domains before sharing data."
+      ],
+      "recommendationSq": "Nuk u gjeten sinjale te forta mashtrimi. Vazhdoni me kujdes standard dhe kontrolloni domain-in para se te jepni te dhena.",
+      "education": "Analiza nuk gjeti kombinim te forte sinjalesh phishing. Rezultati i ulet nuk zevendeson kujdesin per domain-e, bashkengjitje dhe kerkesa pagesash.",
+      "educationEn": "The analysis did not find a strong combination of phishing signals. A low score does not replace caution around domains, attachments, and payment requests.",
+      "nextSteps": [
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
+      ],
+      "timeTakenMs": 25,
+      "createdAt": "2026-07-25T13:21:49.955Z",
+      "type": "url",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "URGJENTE: Llogaria juaj do te bllokohet brenda 24 oreve! Klikoni te verifikoni fjalekalimin: http://paypaI-security-verify.com/login"
+    },
     {
       "id": "sc_swxbopi5x",
       "score": 99,
@@ -92,6 +132,15 @@
     }
   ],
   "notifications": [
+    {
+      "id": "sc_5wa6i2tm4",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:21:49.955Z"
+    },
     {
       "id": "sc_4df57iih8",
       "userId": "u4gi17cbyams07v1rt",
