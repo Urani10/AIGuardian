@@ -1,49 +1,26 @@
-import { ShieldCheck, Upload, Link, QrCode, Mail } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Bell, CheckCircle, FileText, KeyRound, Lock, Mail, Moon, ShieldAlert, ShieldCheck, Smartphone, Star, Sun, Upload, Users, Zap } from 'lucide-react';
 
-const scanInputs = [
-  { icon: Upload, title: 'Screenshot upload', text: 'Analyze screenshots of suspicious messages or fake login pages.' },
-  { icon: Mail, title: 'Email or SMS paste', text: 'Paste message content and sender details for social-engineering checks.' },
-  { icon: Link, title: 'URL scan', text: 'Inspect domains, redirects, impersonation, and malware indicators.' },
-  { icon: QrCode, title: 'QR scan', text: 'Decode QR destinations before users open risky links.' }
-];
-
-export function App() {
-  return (
-    <main className="shell">
-      <section className="hero">
-        <p className="eyebrow">ScanShield AI · AIGuardian</p>
-        <h1>Detect phishing, scam messages, malicious links, and fake invoices before they hurt users.</h1>
-        <p className="heroText">
-          Start with this scaffold, then connect real AI, URL intelligence, QR decoding, and user accounts as the
-          platform grows.
-        </p>
-        <div className="actions">
-          <a href="#scan" className="primary">Plan first scan flow</a>
-          <a href="/api/health" className="secondary">Check API health</a>
-        </div>
-      </section>
-
-      <section id="scan" className="cards">
-        {scanInputs.map(({ icon: Icon, title, text }) => (
-          <article className="card" key={title}>
-            <Icon aria-hidden="true" />
-            <h2>{title}</h2>
-            <p>{text}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className="resultPreview">
-        <ShieldCheck aria-hidden="true" />
-        <div>
-          <p className="risk">Risk Score: 92%</p>
-          <h2>Fake login page detected</h2>
-          <p>
-            The domain appears recently registered, the sender imitates PayPal, and the page asks for sensitive login
-            data. Recommendation: do not open or share the link.
-          </p>
-        </div>
-      </section>
-    </main>
-  );
-}
+type User={name:string;email:string;role:'user'|'admin'}; type Scan={id:string;score:number;threatLevel:string;createdAt:string;type:string;favorite:boolean;explanation:string;recommendations:string[];indicators:string[];confidence:number;timeTakenMs:number;reasons:string[];nextSteps:string[]};
+const scanTypes=['url','website','email','email_text','screenshot','image','pdf','qr','phone','sms','whatsapp','social','file','text'];
+const plans=['Free personal scanning','Pro team protection','Enterprise SOC workflows'];
+function Card(p:any){return <section className="card" {...p}/>}
+export function App(){
+ const [dark,setDark]=useState(false),[user,setUser]=useState<User|null>(null),[token,setToken]=useState(''),[auth,setAuth]=useState({name:'Security Analyst',email:'demo@scanshield.ai',password:'ChangeMe123!',remember:true});
+ const [scan,setScan]=useState({type:'url',url:'http://paypal-wallet-verify.example/login',content:'Urgent verify account password wallet'}); const [history,setHistory]=useState<Scan[]>([]); const [result,setResult]=useState<Scan|null>(null); const [apiKey,setApiKey]=useState({provider:'openai',apiKey:''}); const [status,setStatus]=useState('Not connected'); const [notice,setNotice]=useState('');
+ const stats=useMemo(()=>({total:history.length,malicious:history.filter(s=>s.score>=70).length,phishing:history.filter(s=>s.indicators?.includes('login')||s.indicators?.includes('password')).length,last:history[0]?.createdAt?.slice(0,10)??'No scans yet',score:Math.max(18,100-(history[0]?.score??22))}),[history]);
+ async function post(path:string, body:any){const r=await fetch('/api'+path,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},credentials:'include',body:JSON.stringify(body)}); if(!r.ok) throw new Error(await r.text()); return r.json();}
+ async function signup(){const data=await post('/auth/signup',auth); setUser(data.user); setToken(data.token); setNotice('Account created and secure session started.');}
+ async function login(){const data=await post('/auth/login',auth); setUser(data.user); setToken(data.token); setNotice('Logged in successfully.');}
+ async function runScan(){const data=await post('/scan',scan); setResult(data); const h=await fetch('/api/scan/history',{headers:{Authorization:`Bearer ${token}`},credentials:'include'}); setHistory((await h.json()).scans);}
+ async function saveKey(){await post('/settings/ai',apiKey); setStatus('Connected securely');}
+ async function testKey(){const data=await post('/settings/ai/test',apiKey); setStatus(`${data.status} · ${data.latencyMs}ms`);}
+ return <div className={dark?'app dark':'app'}><nav><b><ShieldCheck/> ScanShield AI</b><span/><a href="#features">Features</a><a href="#pricing">Pricing</a><a href="#help">Help</a><button onClick={()=>setDark(!dark)}>{dark?<Sun/>:<Moon/>}</button></nav>
+ <main><section className="hero"><div><p className="eyebrow">Slate blue cyber defense platform</p><h1>Detect phishing, scams, fake login pages and malicious files before users engage.</h1><p>Full-stack app with JWT authentication, protected scans, AI-provider key management, dashboards, history, notifications, admin analytics, and export-ready reports.</p><div className="actions"><a className="primary" href="#app">Open dashboard</a><a className="secondary" href="#scan">Run scan</a></div></div><div className="glass"><ShieldAlert/><b>Critical threat blocked</b><small>Fake invoice · crypto wallet drain · 96% confidence</small></div></section>
+ <section id="features" className="grid four">{['URL reputation','OCR & images','QR decoding','SMS & WhatsApp','PDF invoices','Social messages','Secure reports','2FA-ready'].map((x,i)=><Card key={x}><Zap/><h3>{x}</h3><p>Production-oriented workflow for {x.toLowerCase()} with validation, audit history, and clear remediation guidance.</p></Card>)}</section>
+ <section id="app" className="layout"><aside className="panel"><h2>Authentication</h2><input aria-label="name" value={auth.name} onChange={e=>setAuth({...auth,name:e.target.value})}/><input aria-label="email" value={auth.email} onChange={e=>setAuth({...auth,email:e.target.value})}/><input aria-label="password" type="password" value={auth.password} onChange={e=>setAuth({...auth,password:e.target.value})}/><label><input type="checkbox" checked={auth.remember} onChange={e=>setAuth({...auth,remember:e.target.checked})}/> Remember me</label><button onClick={signup}><Lock/> Sign up</button><button onClick={login}>Log in</button><a>Forgot password / Reset password</a><small>{notice}</small></aside>
+ <section className="dash"><div className="welcome"><h2>Welcome {user?.name??'Guest'}</h2><p>Security score: <b>{stats.score}/100</b> · Last scan: {stats.last}</p></div><div className="grid four"><Card><ShieldCheck/><b>{stats.total}</b><span>Total scans</span></Card><Card><ShieldAlert/><b>{stats.malicious}</b><span>Malicious URLs</span></Card><Card><Mail/><b>{stats.phishing}</b><span>Phishing emails</span></Card><Card><Star/><b>{history.filter(s=>s.favorite).length}</b><span>Favorites</span></Card></div><Card><h3>Threat level graph</h3><div className="bars">{(history.length?history:[{id:'start',score:12} as Scan]).slice(0,12).map((s,i)=><span key={s.id ?? i} style={{height:`${Math.max(10,s.score)}%`}} title={`Risk ${s.score}`}/>)}</div></Card></section></section>
+ <section id="scan" className="layout"><Card><h2>Scan Center</h2><select value={scan.type} onChange={e=>setScan({...scan,type:e.target.value})}>{scanTypes.map(t=><option key={t}>{t}</option>)}</select><input placeholder="URL" value={scan.url} onChange={e=>setScan({...scan,url:e.target.value})}/><textarea placeholder="Paste email, SMS, WhatsApp, social message, OCR text, or file notes" value={scan.content} onChange={e=>setScan({...scan,content:e.target.value})}/><div className="drop"><Upload/> Drag-and-drop uploads supported by API-ready validation layer</div><button onClick={runScan} disabled={!user}><ShieldAlert/> Analyze with AI</button></Card>{result&&<Card><h2>Risk Score {result.score}/100</h2><p className="badge">{result.threatLevel} · {result.confidence}% confidence · {result.timeTakenMs}ms · ID {result.id}</p><p>{result.explanation}</p><h3>Indicators</h3><p>{result.indicators.join(', ')||'None'}</p><h3>Recommendations</h3><ul>{result.recommendations.map(r=><li key={r}>{r}</li>)}</ul><button onClick={()=>navigator.clipboard?.writeText(JSON.stringify(result,null,2))}>Copy Result</button><button onClick={()=>window.print()}><FileText/> Download PDF</button></Card>}</section>
+ <section className="layout"><Card><h2>AI API Settings</h2><select value={apiKey.provider} onChange={e=>setApiKey({...apiKey,provider:e.target.value})}>{['gemini','openai','groq','openrouter','huggingface'].map(p=><option key={p}>{p}</option>)}</select><input placeholder="Paste your API key — never hardcoded" value={apiKey.apiKey} onChange={e=>setApiKey({...apiKey,apiKey:e.target.value})}/><button onClick={testKey}><KeyRound/> Test Connection</button><button onClick={saveKey}>Save API Key</button><p><CheckCircle/> {status}</p></Card><Card><h2>Scan History</h2><input placeholder="Search scans"/><div className="table">{history.map(s=><p key={s.id}><b>{s.threatLevel}</b> {s.type} · {s.score} · {s.createdAt.slice(0,19)} <button>Favorite</button> <button>Delete</button></p>)}</div><button>Export CSV</button><button>Export PDF</button></Card></section>
+ <section className="grid three" id="pricing">{plans.map(p=><Card key={p}><h2>{p}</h2><p>Responsive SaaS plan card with secure defaults, email notifications, activity logs, device management, and support workflows.</p><button>Choose plan</button></Card>)}</section>
+ <footer id="help"><b>About · Contact · FAQ · Blog · Help Center · Live Status · Privacy · Terms · Cookie Policy</b><p><Bell/> Notifications include scan completed, high-risk threat, API key expiry, login alerts, account activity, and password changes.</p><p><Users/> Admin panel APIs support user review, suspension, deletion, analytics, threat statistics, and system logs.</p></footer></main></div>}
