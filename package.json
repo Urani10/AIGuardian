@@ -1,0 +1,19 @@
+{
+  "name": "aiguardian",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ScanShield AI fullstack phishing, scam, URL, QR, and message risk analysis platform.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @aiguardian/web & npm run dev --workspace @aiguardian/api",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
