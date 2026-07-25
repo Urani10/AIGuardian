@@ -1,0 +1,103 @@
+{
+  "users": [
+    {
+      "id": "a0ya9w8jtjms07ptf0",
+      "name": "Urim Avdiu Kolla",
+      "email": "urimavdiu1@gmail.com",
+      "passwordHash": "pbkdf2$37c647ca1fe2d15e5db596b73538040c$d109c5e4541ab9fa4e0c46d61864f1fab6131e1397cf1d77f142ab54da009aeb",
+      "role": "admin",
+      "suspended": false,
+      "verified": false,
+      "createdAt": "2026-07-25T10:14:37.604Z",
+      "apiKeys": {},
+      "preferences": {
+        "theme": "light",
+        "language": "en",
+        "emailNotifications": true,
+        "twoFactor": false
+      },
+      "activity": [
+        "Login at 2026-07-25T10:16:52.769Z",
+        "Login at 2026-07-25T10:15:02.227Z",
+        "Account created"
+      ]
+    },
+    {
+      "id": "u4gi17cbyams07v1rt",
+      "name": "Uran Namani",
+      "email": "uran.namani39@gmail.com",
+      "passwordHash": "pbkdf2$53219679d7f339376f1c10a0954be816$2bc3ae02968f743e5b032f5c3f3c2fe50814b81dbcd4ed62d3aaff1be1814180",
+      "role": "user",
+      "suspended": false,
+      "verified": false,
+      "createdAt": "2026-07-25T10:18:41.582Z",
+      "apiKeys": {},
+      "preferences": {
+        "theme": "light",
+        "language": "en",
+        "emailNotifications": true,
+        "twoFactor": false
+      },
+      "activity": [
+        "Account created"
+      ]
+    }
+  ],
+  "scans": [
+    {
+      "id": "sc_swxbopi5x",
+      "score": 99,
+      "threatLevel": "Critical",
+      "status": "Mashtrim i Konfirmuar",
+      "statusEn": "Confirmed Scam",
+      "confidence": 99,
+      "explanation": "ScanShield AI detektoi 3 tregues të mundshëm rreziku me nivel rreziku 99%.",
+      "explanationSq": "ScanShield AI detektoi 3 tregues të mundshëm rreziku me nivel rreziku 99%.",
+      "indicators": [
+        "Psychological Urgency",
+        "Credential Harvesting",
+        "Suspicious Link / Obfuscation"
+      ],
+      "reasons": [
+        "Detected psychological manipulation creating artificial urgency to panic the target into acting without thinking.",
+        "Detected request for sensitive login credentials, PINs, or password verification links.",
+        "Detected unencrypted HTTP URL or high-risk top-level domain / shortened URL obfuscation."
+      ],
+      "reasonsSq": [
+        "U identifikua presion psikologjik dhe urgjencë fallco që synon të krijojë panik te përdoruesi.",
+        "Kërkesë direkte për verifikimin e fjalëkalimit, PIN-it ose të dhënave sensitive të hyrjes.",
+        "Përdorim i link-ut të paencriptuar HTTP, shkurtuesve të link-ut ose domain-eve me rrezik të lartë (.xyz, .info)."
+      ],
+      "recommendations": [
+        "Do NOT click any links, enter credentials, or open attachments.",
+        "Block sender immediately and report the threat.",
+        "Change passwords if you previously entered details on this link."
+      ],
+      "recommendationSq": "MOS klikoni asnjë link, MOS plotësoni formularë dhe MOS hapni bashkëngjitje. Bllokoni dërguesin dhe raportojeni menjanëherë!",
+      "education": "Sulmuesit përdorin \"Inxhinierinë Sociale\" dhe panikun artificial. Duke pretenduar se llogaria juaj do të bllokohet brenda pak orësh, ata ju shtyjnë të vepron pa menduar gjatë dhe të klikoni në mezahe apo linke ku ju vjedhin fjalëkalimin.",
+      "educationEn": "Attackers use social engineering and fake login portals to capture credentials and financial information by creating artificial urgency.",
+      "nextSteps": [
+        "Ruani këtë raport për historikun e sigurisë.",
+        "Ndarja e raportit me ekipin tuaj të IT/Security.",
+        "Aktivizoni vërtetimin me dy faktorë (2FA) në llogaritë tuaja."
+      ],
+      "timeTakenMs": 99,
+      "createdAt": "2026-07-25T10:15:11.699Z",
+      "type": "url",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "URGJENTE: Llogaria juaj do te bllokohet brenda 24 oreve! Klikoni te verifikoni fjalekalimin: http://paypaI-security-verify.com/login"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "sc_swxbopi5x",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Critical result with score 99.",
+      "severity": "critical",
+      "read": false,
+      "createdAt": "2026-07-25T10:15:11.699Z"
+    }
+  ]
+}

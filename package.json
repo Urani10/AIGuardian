@@ -2,7 +2,7 @@
   "name": "aiguardian",
   "version": "0.1.0",
   "private": true,
-  "description": "ScanShield AI fullstack phishing, scam, URL, QR, and message risk analysis platform.",
+  "description": "AIGuardian fullstack cybersecurity, phishing, scam, URL, QR, and message risk analysis platform.",
   "workspaces": [
     "apps/*",
     "packages/*"
