@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/sentientauthaura.tsx"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/imagepreview.tsx","./src/components/ocrresult.tsx","./src/components/riskscoremeter.tsx","./src/components/screenshotuploader.tsx","./src/components/sentientauthaura.tsx","./src/components/threatanalysiscard.tsx"],"version":"5.9.3"}

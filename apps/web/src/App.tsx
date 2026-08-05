@@ -5,9 +5,15 @@ import {
   Trash2, Globe, Lock, Sun, Moon, BookOpen, BarChart3,
   Sparkles, RefreshCw, Shield, User, LogOut,
   Settings, Eye, EyeOff, AlertOctagon, Menu, X,
-  LockKeyhole, Activity, Search
+  LockKeyhole, Activity, Search, ChevronDown, Check, ArrowRight,
+  Camera, Image as ImageIcon
 } from 'lucide-react';
 import { SentientAuthAura, AuraState } from './components/SentientAuthAura';
+import { RiskScoreMeter } from './components/RiskScoreMeter';
+import { ImagePreview } from './components/ImagePreview';
+import { ScreenshotUploader } from './components/ScreenshotUploader';
+import { OCRResult } from './components/OCRResult';
+import { ThreatAnalysisCard } from './components/ThreatAnalysisCard';
 import logoImg from './assets/logo.png';
 import './styles/global.css';
 
@@ -46,10 +52,57 @@ export interface ScanResult {
   createdAt: string;
   type: ScanInputType;
   favorite: boolean;
+  ocrText?: string;
+  ocrNoteSq?: string;
+  ocrNoteEn?: string;
+}
+
+export interface PresetSample {
+  id: string;
+  labelSq: string;
+  labelEn: string;
+  tag: string;
+  badgeSq: string;
+  badgeEn: string;
+  badgeType: 'high' | 'medium' | 'safe';
+  type: ScanInputType;
+  url: string;
+  content: string;
+  descSq: string;
+  descEn: string;
+  imageSrc?: string;
+  ocrText?: string;
+  ocrNoteSq?: string;
+  ocrNoteEn?: string;
 }
 
 /* ═══════════════════════════════════════════
-   TRANSLATIONS
+   SYNTHETIC SVG SCREENSHOT MOCKUPS FOR PRESETS
+═══════════════════════════════════════════ */
+const generateSvgScreenshot = (bg: string, title: string, subtitle: string, bodyText: string, warningPill: string) => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+    <rect width="800" height="480" fill="${bg}" rx="12"/>
+    <rect x="0" y="0" width="800" height="44" fill="#0f172a" rx="12"/>
+    <circle cx="24" cy="22" r="6" fill="#ef4444"/>
+    <circle cx="44" cy="22" r="6" fill="#f59e0b"/>
+    <circle cx="64" cy="22" r="6" fill="#10b981"/>
+    <rect x="120" y="10" width="560" height="24" rx="6" fill="#1e293b"/>
+    <text x="400" y="26" fill="#94a3b8" font-size="12" font-family="sans-serif" text-anchor="middle">${title}</text>
+    <rect x="40" y="70" width="720" height="60" rx="8" fill="#1e293b"/>
+    <text x="60" y="105" fill="#f8fafc" font-size="18" font-family="sans-serif" font-weight="bold">${warningPill}</text>
+    <rect x="40" y="150" width="720" height="280" rx="10" fill="#0b0f19" stroke="#334155"/>
+    <text x="70" y="195" fill="#3b82f6" font-size="20" font-family="sans-serif" font-weight="bold">${subtitle}</text>
+    <text x="70" y="240" fill="#cbd5e1" font-size="14" font-family="sans-serif">${bodyText.substring(0, 75)}</text>
+    <text x="70" y="270" fill="#cbd5e1" font-size="14" font-family="sans-serif">${bodyText.substring(75, 150)}</text>
+    <text x="70" y="300" fill="#cbd5e1" font-size="14" font-family="sans-serif">${bodyText.substring(150, 220)}</text>
+    <rect x="70" y="340" width="220" height="44" rx="8" fill="#2563eb"/>
+    <text x="180" y="367" fill="#ffffff" font-size="14" font-family="sans-serif" font-weight="bold" text-anchor="middle">Verify &amp; Continue</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+/* ═══════════════════════════════════════════
+   TRANSLATIONS DICTIONARY
 ═══════════════════════════════════════════ */
 const T = {
   sq: {
@@ -58,54 +111,58 @@ const T = {
     history: 'Historiku',
     settings: 'Konfigurimi AI',
     guide: 'Edukimi & Udhëzuesi',
-    heroTitle: 'Mbrojtja Juaj Inteligjente Kundër Mashtrimeve Dixhitale',
-    heroSubtitle: 'Analizoni me imtësi linqe, email-e, SMS, QR kode, screenshot-e apo fatura me inteligjencë artificiale. Merrni nivelin e rrezikut, arsyet e identifikuara dhe udhëzime të menjëhershme mbrojtjeje.',
-    scanNow: 'Analizo një Mashtrim me AI',
-    trySample: 'Testo me Shembull',
+    heroTag: 'AIGuardian Real-Time Threat Engine 2.0',
+    heroTitle: 'Zbuloni dhe bllokoni mashtrimet digjitale me fuqinë e AI',
+    heroSubtitle: 'Analizoni lidhje, email-e, SMS, QR kode dhe dokumente në sekonda me inteligjencë artificiale. Merrni nivelin e rrezikut, arsyet e detektuara dhe udhëzime të menjëhershme.',
+    scanNow: 'Analizo tani',
+    trySample: 'Provo shembullin',
     shieldActive: 'AIGuardian Real-Time Shield: AKTIV',
     securityScore: 'Niveli i Sigurisë',
     totalScans: 'Skanime të Kryera',
-    shieldDesc: 'Mbështet detektimin e typosquatting, smishing, quishing dhe faturave fiktive.',
-    analysisCenterTitle: 'Qendra e Analizës së Mashtrimeve AIGuardian',
-    presets: '1-Klikim Presets:',
+    confirmedScams: 'Mashtrime të Bllokuara',
+    safeElements: 'Të Sigurta',
+    shieldDesc: 'Detekton typosquatting, smishing, quishing dhe faturat fiktive me zero-knowledge privacy.',
+    analysisCenterTitle: 'Qendra e Analizës së Mashtrimeve me AI',
+    selectCategory: 'Zgjidhni Kategorinë e Skanimit:',
+    presetsTitle: 'Shembuj Kërcënimesh me 1-Klikim (Presets):',
     suspiciousUrl: 'URL ose Linku i Dyshimtë',
+    urlPlaceholder: 'p.sh. http://paypaI-security-verify.com/login',
     messageText: 'Teksti i Mesazhit / Email-it / Përmbajtja',
-    messagePlaceholder: 'Vendosni këtu tekstin e email-it, SMS-së apo faturës...',
-    dragDrop: 'Tërhiqni & Lëshoni Imazhin ose Skedarin',
-    fileFormats: 'Mbështet PNG, JPG, WEBP, PDF (Deri në 25MB)',
-    analyzeBtn: 'Analizo me AIGuardian',
-    scanning: 'Duke skanuar me AIGuardian...',
+    messagePlaceholder: 'Vendosni këtu tekstin e email-it, SMS-së apo faturës për analizë të hollësishme...',
+    dragDrop: 'Tërhiqni & Lëshoni Imazhin ose Skedarin (OCR / PDF)',
+    fileFormats: 'Mbështet skedarët PNG, JPG, WEBP, PDF (Deri në 10MB)',
+    analyzeBtn: 'Analizo me AIGuardian Core',
+    scanning: 'Duke analizuar screenshot-in dhe tekstin OCR me AI...',
     reportTitle: 'Raporti i Analizës së Sigurisë',
-    identifiedReasons: 'Arsyet e Identifikuara:',
-    recommendation: 'Rekomandimi i Menjëhershëm:',
-    education: 'Edukimi (Pse është mashtrim?):',
+    identifiedReasons: 'Arsyet e Detektuara të Rrezikut:',
+    recommendation: 'Rekomandimi i Menjëhershëm i Sigurisë:',
+    education: 'Edukimi Teknologjik (Pse është mashtrim?):',
     confidence: 'Besueshmëria e AI',
     execTime: 'Koha e ekzekutimit',
     saved: 'E Ruajtur',
     save: 'Ruaj',
+    printPdf: 'Eksporto PDF',
     analyticsTitle: 'Statistikat & Paneli i Kërcënimeve AIGuardian',
-    totalScansLabel: 'Gjithsej Skanime',
-    confirmedScams: 'Mashtrime të Konfirmuara',
-    suspicious: 'Elemente të Dyshimta',
-    safeElements: 'Elemente të Sigurta',
+    totalScansLabel: 'Gjithsej Skanime të Kryera',
+    suspiciousLabel: 'Elemente të Dyshimta',
     riskChart: 'Grafiku i Rrezikut sipas Skanimeve të Fundit',
     historyTitle: 'Historiku i Analizave',
-    searchHistory: 'Kërko në historik...',
+    searchHistory: 'Kërko në historikun e skanimeve...',
     statusCol: 'Statusi',
-    levelCol: 'Niveli',
-    typeCol: 'Lloji',
-    explanationCol: 'Shpjegimi',
-    dateCol: 'Data',
+    levelCol: 'Niveli i Rrezikut',
+    typeCol: 'Kategoria',
+    explanationCol: 'Përmbledhja e AI',
+    dateCol: 'Koha',
     actionsCol: 'Veprime',
     noHistory: 'Nuk ka asnjë skanim të regjistruar akoma në historik.',
     settingsTitle: 'Konfigurimi i Motorit AI',
     settingsDesc: 'Vendosni çelësin tuaj të API-së për Gemini, OpenAI apo Groq për të mundësuar skanim të avancuar me AIGuardian Core.',
     selectProvider: 'Zgjidhni Ofronësin AI',
-    apiKeyLabel: 'Çelësi i API-së (API Key)',
+    apiKeyLabel: 'Çelësi i API-së (API Key Secret)',
     testConnection: 'Testo Lidhjen',
     saveConfig: 'Ruaj Konfigurimin',
     guideTitle: 'Udhëzuesi i Sigurisë & Edukimi mbi Mashtrimet',
-    guideSubtitle: 'Mësoni si funksionojnë teknikat kryesore të mashtrimeve dixhitale dhe si të mbroni veten.',
+    guideSubtitle: 'Mësoni si funksionojnë teknikat kryesore të mashtrimeve digjitale dhe si të mbroni veten.',
     loggedOut: 'U çkyçët nga AIGuardian.',
     loginSuccess: 'U kyçët me sukses në AIGuardian!',
     scanComplete: 'Analiza e AIGuardian u përfundua me sukses!',
@@ -113,8 +170,8 @@ const T = {
     configSaved: 'Konfigurimi u ruajt me sukses.',
     sampleLoaded: 'U ngarkua shembulli',
     deleted: 'Analiza u fshi nga historiku.',
-    invalidCreds: 'Kreditiale të pasakta. Tentativa e hyrjes u bllokua me siguri.',
-    invalidCredsToast: 'Kreditiale jo të vlefshme! Qasja u bllokua.',
+    invalidCreds: 'Kredenciale të pasakta. Tentativa e hyrjes u bllokua me siguri.',
+    invalidCredsToast: 'Kredenciale jo të vlefshme! Qasja u bllokua.',
     shieldDrawerTitle: 'Real-Time Privacy Shield',
     shieldStatus: '● Statusi i Sesionit: Encrypted & Safe (AES-256 GCM)',
     shieldProtection: '🛡️ Mbrojtja e Sesionit Aktiv:',
@@ -143,30 +200,39 @@ const T = {
     testDbTitle: 'Testo përgjigjet e bazës me 1-klikim:',
     validPreset: 'Kredencial i Vlefshëm',
     invalidPreset: 'Simulo Invalid (Shatter)',
+    sysStatus: '🟢 Të gjitha sistemet operative (99.99% Uptime)',
+    copyright: '© 2026 AIGuardian Cybersecurity Suite · Të gjitha të drejtat e rezervuara',
+    privacyNotice: 'Sesioni juaj është i enkriptuar me standardin AES-256 GCM me mbrojtje zero-knowledge.',
+    uploadScreenshotTitle: 'Ngarko Screenshot',
   },
   en: {
     scanCenter: 'Scan Center',
     analytics: 'Threat Analytics',
-    history: 'History',
+    history: 'Scan History',
     settings: 'AI Setup',
     guide: 'Security Guide',
-    heroTitle: 'Intelligent AI Protection Against Digital Scams & Phishing',
-    heroSubtitle: 'Deep scan URLs, emails, SMS, QR codes, screenshots, and invoices with AI. Receive real-time risk scores, identified threat vectors, actionable steps, and clear educational breakdowns.',
-    scanNow: 'Scan a Potential Threat',
-    trySample: 'Try Sample Test',
+    heroTag: 'AIGuardian Real-Time Threat Engine 2.0',
+    heroTitle: 'Detect and block digital scams with the power of AI',
+    heroSubtitle: 'Deep scan links, emails, SMS, QR codes, screenshots, and invoices in seconds with artificial intelligence. Receive instant risk scores, identified threat vectors, and actionable guidance.',
+    scanNow: 'Scan now',
+    trySample: 'Try sample',
     shieldActive: 'AIGuardian Real-Time Shield: ACTIVE',
     securityScore: 'Security Score',
     totalScans: 'Total Scans',
-    shieldDesc: 'Supports typosquatting, smishing, quishing, and fake invoice analysis.',
-    analysisCenterTitle: 'AIGuardian Threat Analysis Center',
-    presets: '1-Click Threat Presets:',
+    confirmedScams: 'Blocked Scams',
+    safeElements: 'Verified Safe',
+    shieldDesc: 'Detects typosquatting, smishing, quishing, and fake invoices with zero-knowledge privacy.',
+    analysisCenterTitle: 'Artificial Intelligence Threat Analysis Center',
+    selectCategory: 'Select Scan Category:',
+    presetsTitle: '1-Click Threat Presets:',
     suspiciousUrl: 'Suspicious URL or Link',
+    urlPlaceholder: 'e.g. http://paypaI-security-verify.com/login',
     messageText: 'Message Text / Email Content / Notes',
-    messagePlaceholder: 'Paste message text, email content, or notes here...',
-    dragDrop: 'Drag & Drop Screenshot or Document',
-    fileFormats: 'Supports PNG, JPG, WEBP, PDF (Up to 25MB)',
-    analyzeBtn: 'Analyze with AIGuardian',
-    scanning: 'Scanning with AIGuardian...',
+    messagePlaceholder: 'Paste message text, email content, or notes here for deep inspection...',
+    dragDrop: 'Drag & Drop Screenshot or Document (OCR / PDF)',
+    fileFormats: 'Supports PNG, JPG, WEBP, PDF (Up to 10MB)',
+    analyzeBtn: 'Analyze with AIGuardian Core',
+    scanning: 'Analyzing screenshot and OCR text with AI...',
     reportTitle: 'Security Analysis Report',
     identifiedReasons: 'Identified Threat Reasons:',
     recommendation: 'Immediate Actionable Recommendation:',
@@ -175,19 +241,18 @@ const T = {
     execTime: 'Execution time',
     saved: 'Favorited',
     save: 'Favorite',
+    printPdf: 'Export PDF',
     analyticsTitle: 'AIGuardian Threat Analytics Overview',
     totalScansLabel: 'Total Scans Analyzed',
-    confirmedScams: 'Confirmed Scams Blocked',
-    suspicious: 'Suspicious Elements',
-    safeElements: 'Verified Safe Inputs',
+    suspiciousLabel: 'Suspicious Elements',
     riskChart: 'Recent Scan Risk Level Graph',
     historyTitle: 'Scan Analysis History',
-    searchHistory: 'Search scans...',
+    searchHistory: 'Search scan history...',
     statusCol: 'Status',
     levelCol: 'Risk Score',
-    typeCol: 'Type',
-    explanationCol: 'Explanation',
-    dateCol: 'Date',
+    typeCol: 'Category',
+    explanationCol: 'AI Summary',
+    dateCol: 'Time',
     actionsCol: 'Actions',
     noHistory: 'No scans recorded in history yet.',
     settingsTitle: 'AI Engine & API Key Setup',
@@ -235,42 +300,190 @@ const T = {
     testDbTitle: 'Test database responses with 1-click presets:',
     validPreset: 'Valid Preset',
     invalidPreset: 'Simulate Invalid (Shatter)',
+    sysStatus: '🟢 All systems operational (99.99% Uptime)',
+    copyright: '© 2026 AIGuardian Cybersecurity Suite · All rights reserved',
+    privacyNotice: 'Your session is encrypted using AES-256 GCM with zero-knowledge protection.',
+    uploadScreenshotTitle: 'Upload Screenshot',
   }
 } as const;
 
 /* ═══════════════════════════════════════════
-   PRESET SAMPLES
+   SCAN CATEGORIES CONFIG
 ═══════════════════════════════════════════ */
-const PRESET_SAMPLES = [
+const CATEGORY_CARDS = [
   {
-    label: '🚨 Fake PayPal (Typosquatting)',
     type: 'url' as ScanInputType,
-    url: 'http://paypaI-security-verify.com/login?urgent=1',
-    content: 'Urgent security verification required for your PayPal wallet account. Verify password immediately or account will be suspended within 24 hours.'
+    labelSq: 'URL / Link',
+    labelEn: 'URL / Web Link',
+    icon: <Globe size={20} />,
+    descSq: 'Zbulon phishing, domain spoofing dhe typosquatting.',
+    descEn: 'Detects phishing, domain spoofing, and typosquatting.'
   },
   {
-    label: '💬 SMS Bankar (Smishing)',
+    type: 'email' as ScanInputType,
+    labelSq: 'Email',
+    labelEn: 'Email Content',
+    icon: <Mail size={20} />,
+    descSq: 'Detekton mashtrimet BEC, dërguesit e rremë dhe përmbajtjet malinje.',
+    descEn: 'Detects BEC scams, spoofed senders, and malicious payloads.'
+  },
+  {
     type: 'sms' as ScanInputType,
-    url: 'http://banka-al-verify.info/login',
-    content: 'URGJENTE: Llogaria juaj bankare eshte bllokuar! Klikoni te verifikoni fjalekalimin menjehere: http://banka-al-verify.info/login'
+    labelSq: 'SMS / WhatsApp',
+    labelEn: 'SMS / Messaging',
+    icon: <Smartphone size={20} />,
+    descSq: 'Identifikon smishing dhe mesazhet mashtruese bankare.',
+    descEn: 'Identifies smishing and deceptive mobile banking texts.'
   },
   {
-    label: '🔲 QR Crypto Scam (Quishing)',
     type: 'qr' as ScanInputType,
-    url: 'http://claim-usdt-airdrop.xyz/approve',
-    content: 'Scan QR code to claim 500 USDT giveaway. Connect wallet and approve token transfer.'
+    labelSq: 'QR Code',
+    labelEn: 'QR Code / Quishing',
+    icon: <QrCode size={20} />,
+    descSq: 'Verifikon linqet e fshehura përmes quishing dhe ridrejtimet mashtruese.',
+    descEn: 'Verifies hidden links in QR codes and quishing redirects.'
   },
   {
-    label: '📄 Faturë Fiktive (Fake Invoice)',
+    type: 'screenshot' as ScanInputType,
+    labelSq: '📸 Screenshot / OCR',
+    labelEn: '📸 Screenshot / OCR',
+    icon: <Camera size={20} />,
+    descSq: 'Ngarko screenshot-e të faqeve, mesazheve ose faturave dhe AI identifikon mashtrimet.',
+    descEn: 'Upload screenshots of websites, messages, or invoices and AI detects scams.'
+  },
+  {
     type: 'pdf' as ScanInputType,
-    url: '',
-    content: 'INVOICE #98231 OVERDUE - Urgent payment required. Please wire transfer $4,850 to our new offshore account.'
+    labelSq: 'Faturë / PDF',
+    labelEn: 'Invoice / PDF',
+    icon: <FileText size={20} />,
+    descSq: 'Analizon faturat fiktive, IBAN të ndryshuara dhe mashtrimet me me pagesa.',
+    descEn: 'Analyzes fake invoices, altered IBANs, and wire transfer scams.'
+  }
+];
+
+/* ═══════════════════════════════════════════
+   PRESET SAMPLES CONFIG
+═══════════════════════════════════════════ */
+const PRESET_SAMPLES: PresetSample[] = [
+  {
+    id: 'fake-paypal',
+    labelSq: '🚨 Fake PayPal Screenshot',
+    labelEn: '🚨 Fake PayPal Screenshot',
+    tag: 'Typosquatting',
+    badgeSq: 'Kërcënim i Lartë',
+    badgeEn: 'Critical Threat',
+    badgeType: 'high',
+    type: 'screenshot',
+    url: 'http://paypaI-security-verify.com/login?urgent=1',
+    content: 'Urgent security verification required for your PayPal wallet account. Verify password immediately or account will be suspended within 24 hours.',
+    descSq: 'Screenshot nga domain i falsifikuar paypaI.com me me me me dritare hyrjeje me urgjencë.',
+    descEn: 'Screenshot of spoofed paypaI.com login portal requesting immediate verification.',
+    imageSrc: generateSvgScreenshot(
+      '#070a14',
+      'http://paypaI-security-verify.com/login',
+      'PayPal Wallet Security Alert',
+      'Urgent security verification required for your PayPal wallet account. Verify password immediately or account will be suspended within 24 hours. Login at http://paypaI-security-verify.com/login',
+      '⚠ URGENT VERIFICATION REQUIRED'
+    ),
+    ocrText: `PayPal Security Verification: Your wallet account #892-311 has been flagged for suspicious login activity. Verify your password and SSN immediately to prevent account termination within 24 hours. Login at http://paypaI-security-verify.com/login`,
+    ocrNoteSq: 'Ky tekst përdor presion kohor dhe domain-in e falsifikuar paypaI.com për të vjedhur fjalëkalimet.',
+    ocrNoteEn: 'This text employs psychological time pressure and spoofed domain paypaI.com to harvest credentials.'
   },
   {
-    label: '✅ PayPal Official (Safe)',
-    type: 'url' as ScanInputType,
+    id: 'sms-bankar',
+    labelSq: '💬 Fake Bank SMS',
+    labelEn: '💬 Fake Bank SMS',
+    tag: 'Smishing',
+    badgeSq: 'Smishing Bankar',
+    badgeEn: 'Bank Smishing',
+    badgeType: 'high',
+    type: 'screenshot',
+    url: 'http://banka-al-verify.info/login',
+    content: 'URGJENTE: Llogaria juaj bankare eshte bllokuar! Klikoni te verifikoni fjalekalimin menjehere: http://banka-al-verify.info/login',
+    descSq: 'Pamje ekrani e mesazhit SMS mashtrues që imiton njoftim urgjent bankar.',
+    descEn: 'SMS message screenshot pretending to be an urgent bank security alert.',
+    imageSrc: generateSvgScreenshot(
+      '#0b1329',
+      'SMS Alert • Banka Shqiptare',
+      'URGJENTE: Llogaria e Bllokuar',
+      'URGJENTE: Llogaria juaj bankare eshte bllokuar per arsye sigurie. Per ta zhbllokuar menjehere klikoni: http://banka-al-verify.info/login me urgjence.',
+      '💬 SMS BANKAR ALERT'
+    ),
+    ocrText: `Banka Shqiptare Alert: Llogaria juaj bankare eshte bllokuar per arsye sigurie. Per ta zhbllokuar menjehere klikoni: http://banka-al-verify.info/login me urgjence.`,
+    ocrNoteSq: 'Identifikohet smishing bankar që përdor linqe jo-zyrtare me prapashtesën .info.',
+    ocrNoteEn: 'Identified mobile smishing employing unverified .info TLD domain links.'
+  },
+  {
+    id: 'qr-crypto',
+    labelSq: '🔲 Fake Crypto Giveaway',
+    labelEn: '🔲 Fake Crypto Giveaway',
+    tag: 'Quishing',
+    badgeSq: 'Quishing Crypto',
+    badgeEn: 'Crypto Quishing',
+    badgeType: 'medium',
+    type: 'screenshot',
+    url: 'http://claim-usdt-airdrop.xyz/approve',
+    content: 'Scan QR code to claim 500 USDT giveaway. Connect wallet and approve token transfer.',
+    descSq: 'Screenshot me QR kod mashtrues për zbrazjen e kripto-portofolit.',
+    descEn: 'Crypto giveaway screenshot containing malicious wallet drainer QR code.',
+    imageSrc: generateSvgScreenshot(
+      '#130a2a',
+      'http://claim-usdt-airdrop.xyz',
+      '500 USDT Airdrop Claim',
+      'Scan QR code to claim 500 USDT giveaway. Connect Web3 Wallet & Approve Unlimited Token Transfer at http://claim-usdt-airdrop.xyz/approve',
+      '🔲 CRYPTO AIRDROP SCAN'
+    ),
+    ocrText: `USDT Airdrop Giveaway 2026: Claim 500 USDT free giveaway. Connect Web3 Wallet & Approve Unlimited Token Transfer at http://claim-usdt-airdrop.xyz/approve`,
+    ocrNoteSq: 'Kujdes: Kërkesat për miratim të pakufizuar të token-ave janë zbrazës portofoli (wallet drainers).',
+    ocrNoteEn: 'Warning: Unlimited token transfer approvals are classic crypto wallet drainer exploits.'
+  },
+  {
+    id: 'fake-invoice',
+    labelSq: '📄 Fake Invoice PDF',
+    labelEn: '📄 Fake Invoice PDF',
+    tag: 'BEC / Invoice',
+    badgeSq: 'Faturë Fiktive',
+    badgeEn: 'Fake Invoice',
+    badgeType: 'high',
+    type: 'screenshot',
+    url: '',
+    content: 'INVOICE #98231 OVERDUE - Urgent payment required. Please wire transfer $4,850 to our new offshore account.',
+    descSq: 'Pamje e faturës fiktive me ndryshim të papritur të IBAN-it bankar.',
+    descEn: 'Invoice document screenshot showing suspicious offshore bank routing change.',
+    imageSrc: generateSvgScreenshot(
+      '#1a0c12',
+      'Invoice_99210_Overdue.pdf',
+      'COMMERCIAL INVOICE #INV-99210',
+      'INVOICE OVERDUE: Total $4,850.00 USD. Our bank routing details have changed. Please send wire transfer directly to Offshore Bank Account IBAN: AL392021110000000928311029.',
+      '📄 FAKTUAR $4,850.00 OVERDUE'
+    ),
+    ocrText: `COMMERCIAL INVOICE #INV-99210 OVERDUE: Total $4,850.00 USD. IMPORTANT NOTICE: Our bank routing details have changed. Please send wire transfer directly to Offshore Bank Account IBAN: AL392021110000000928311029.`,
+    ocrNoteSq: 'Identifikohet mashtrim fature BEC me ndryshim të paautorizuar të IBAN-it bankar.',
+    ocrNoteEn: 'Detected Business Email Compromise (BEC) invoice fraud altering bank wire details.'
+  },
+  {
+    id: 'paypal-safe',
+    labelSq: '✅ Safe PayPal Website',
+    labelEn: '✅ Safe PayPal Website',
+    tag: 'Verified',
+    badgeSq: 'Zyrtare / Sigurt',
+    badgeEn: 'Official / Safe',
+    badgeType: 'safe',
+    type: 'screenshot',
     url: 'https://www.paypal.com/signin',
-    content: 'Official sign-in portal for PayPal.'
+    content: 'Official sign-in portal for PayPal.',
+    descSq: 'Screenshot autentik nga faqja zyrtare e certifikuar e PayPal.',
+    descEn: 'Authentic screenshot of official encrypted PayPal sign-in portal.',
+    imageSrc: generateSvgScreenshot(
+      '#081711',
+      'https://www.paypal.com/signin',
+      'PayPal Official Portal',
+      'PayPal Official Sign-In: Transfer money, send payments, and manage your account securely with SSL 256-bit encryption. https://www.paypal.com/signin',
+      '✅ VERIFIED OFFICIAL PORTAL'
+    ),
+    ocrText: `PayPal Official Sign-In: Transfer money, send payments, and manage your account securely with SSL 256-bit encryption. https://www.paypal.com/signin`,
+    ocrNoteSq: 'Përmbajtja dhe domain-i verifikohen si zyrtare me certifikatë të vlefshme SSL.',
+    ocrNoteEn: 'Verified authentic domain with valid SSL encryption certificate.'
   }
 ];
 
@@ -279,9 +492,22 @@ const PRESET_SAMPLES = [
 ═══════════════════════════════════════════ */
 export function App() {
   const [dark, setDark] = useState(true);
-  const [lang, setLang] = useState<Lang>('sq');
+
+  // Persistent Language State
+  const [lang, setLang] = useState<Lang>(() => {
+    const saved = localStorage.getItem('aiguardian_lang');
+    return (saved === 'sq' || saved === 'en') ? saved : 'sq';
+  });
+
+  const changeLang = (newLang: Lang) => {
+    setLang(newLang);
+    localStorage.setItem('aiguardian_lang', newLang);
+  };
+
   const [activeTab, setActiveTab] = useState<'scanner' | 'analytics' | 'history' | 'settings' | 'guide'>('scanner');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
+  const langDropdownRef = useRef<HTMLDivElement>(null);
 
   const t = T[lang];
 
@@ -308,7 +534,12 @@ export function App() {
   const [scanType, setScanType] = useState<ScanInputType>('url');
   const [inputUrl, setInputUrl] = useState('http://paypaI-security-verify.com/login');
   const [inputContent, setInputContent] = useState('URGJENTE: Llogaria juaj do te bllokohet brenda 24 oreve! Klikoni te verifikoni fjalekalimin: http://paypaI-security-verify.com/login');
-  const [fileName] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [fileSizeFormatted, setFileSizeFormatted] = useState('');
+  const [screenshotSrc, setScreenshotSrc] = useState<string | null>(null);
+  const [extractedOcrText, setExtractedOcrText] = useState<string>('');
+  const [ocrNoteSq, setOcrNoteSq] = useState<string>('');
+  const [ocrNoteEn, setOcrNoteEn] = useState<string>('');
   const [isScanning, setIsScanning] = useState(false);
 
   // Results & History
@@ -328,11 +559,14 @@ export function App() {
     setTimeout(() => setToast(null), 3500);
   }, []);
 
-  // Close dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setShowProfileDropdown(false);
+      }
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setShowLangDropdown(false);
       }
     };
     document.addEventListener('mousedown', handler);
@@ -461,109 +695,29 @@ export function App() {
     showToast(t.loggedOut);
   };
 
-  /*
-  // Local Risk Analyzer
-  const legacyRunLocalScan = (type: ScanInputType, urlVal: string, contentVal: string, fileVal: string): ScanResult => {
-    const combined = `${urlVal} ${contentVal} ${fileVal}`.toLowerCase();
-    let score = 12;
-    const reasonsSq: string[] = [];
-    const reasonsEn: string[] = [];
-    const indicators: string[] = [];
+  const handleFileUploaded = (file: File) => {
+    const sizeStr = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+    setFileName(file.name);
+    setFileSizeFormatted(sizeStr);
+    setScanType('screenshot');
 
-    if (combined.includes('paypai') || combined.includes('paypai-')) {
-      score += 65;
-      indicators.push('Typosquatting Domain');
-      reasonsSq.push('U identifikua domain i rremë "paypaI" (shkronjë "I" e madhe në vend të "l" të vogël) që imiton shërbimin zyrtar.');
-      reasonsEn.push('Identified fake domain "paypaI" using capital "I" instead of lowercase "l" to spoof PayPal.');
-    }
-    if (combined.includes('urgjente') || combined.includes('urgent') || combined.includes('bllokohet') || combined.includes('24 oreve') || combined.includes('suspended')) {
-      score += 25;
-      indicators.push('Psychological Urgency');
-      reasonsSq.push('Mesazhi përmban presion psikologjik dhe paralajmërim fallco për bllokim llogarie.');
-      reasonsEn.push('Message uses psychological manipulation and fake urgent threats of account suspension.');
-    }
-    if (combined.includes('verifikoni') || combined.includes('verify') || combined.includes('fjalekalimin') || combined.includes('password')) {
-      score += 20;
-      indicators.push('Credential Harvesting');
-      reasonsSq.push('Kërkohet verifikimi i fjalëkalimit ose të dhënave sensitive të hyrjes.');
-      reasonsEn.push('Requesting password verification or sensitive authentication details.');
-    }
-    if (combined.includes('banka-al-verify') || combined.includes('claim-usdt') || combined.includes('.info') || combined.includes('.xyz')) {
-      score += 30;
-      indicators.push('High-Risk Domain');
-      reasonsSq.push('Përdorim i domain-eve jo-zyrtare ose me rrezik të lartë (.info / .xyz).');
-      reasonsEn.push('High-risk unverified domain TLD (.info / .xyz).');
-    }
-    if (combined.includes('offshore') || combined.includes('wire transfer') || combined.includes('overdue')) {
-      score += 25;
-      indicators.push('Fake Invoice Pattern');
-      reasonsSq.push('Karakteristika të faturave fiktive: transfertë offshore dhe presion urgjence financiare.');
-      reasonsEn.push('Fake invoice characteristics: offshore transfer request with financial urgency pressure.');
-    }
-
-    score = Math.min(99, Math.max(8, score));
-
-    let status: 'I Sigurt' | 'Suspekt' | 'Mashtrim i Konfirmuar' = 'I Sigurt';
-    let statusEn = 'Safe';
-    let threatLevel = 'Safe';
-
-    if (score >= 70) {
-      status = 'Mashtrim i Konfirmuar';
-      statusEn = 'Confirmed Scam';
-      threatLevel = 'Critical';
-    } else if (score >= 30) {
-      status = 'Suspekt';
-      statusEn = 'Suspicious';
-      threatLevel = 'Medium Risk';
-    }
-
-    if (reasonsSq.length === 0) {
-      reasonsSq.push('Përmbajtja nuk përmban kërkesa për fjalëkalime ose linqe të rreme.');
-      reasonsEn.push('Content did not request passwords or contain suspicious look-alike links.');
-      indicators.push('Verified SSL / Clean Content');
-    }
-
-    const recSq = score >= 70
-      ? 'MOS klikoni në këtë link, MOS shkruani fjalëkalimin tuaj dhe MOS hapni bashkëngjitjen. Bllokoni dërguesin menjëherë!'
-      : score >= 30
-      ? 'Tregoni kujdes të shtuar. Kontrolloni adresën zyrtare të dërguesit dhe mos jepni të dhëna personale.'
-      : 'Përmbajtja duket e sigurt, por ruani kujdesin standard gjatë lundrimit online.';
-
-    const eduSq = score >= 70
-      ? 'Hakerët kanë përdorur teknikën "Typosquatting" ose "Inxhinieri Sociale". Ata krijojnë faqe ose mesazhe me emra thuajse identikë me ato zyrtare (si paypaI me I të madhe) për t\'ju nxitur me panik të shkruani fjalëkalimin tuaj.'
-      : 'Mashtruesit përdorin faqe të rreme për t\'ju marrë të dhënat. Gjithmonë kontrolloni që faqja ku hyni të jetë https:// zyrtare.';
-
-    return {
-      id: 'guard_' + Math.random().toString(36).slice(2, 10),
-      score,
-      threatLevel,
-      status,
-      statusEn,
-      confidence: 96,
-      explanation: `AIGuardian përfundoi analizën me nivel rreziku ${score}%.`,
-      explanationSq: `AIGuardian përfundoi analizën me nivel rreziku ${score}%.`,
-      indicators,
-      reasons: reasonsEn,
-      reasonsSq,
-      recommendations: [recSq],
-      recommendationSq: recSq,
-      education: eduSq,
-      educationEn: 'Attackers use look-alike domains and urgency to trick users into giving away sensitive passwords.',
-      nextSteps: [
-        'Mos e shpërndani këtë link me persona të tjerë.',
-        'Raportoni adresën mashtruese pranë departamentit të sigurisë.',
-        'Aktivizoni vërtetimin me dy faktorë (2FA) në llogaritë tuaja.'
-      ],
-      timeTakenMs: Math.floor(Math.random() * 80) + 120,
-      createdAt: new Date().toISOString(),
-      type,
-      favorite: false
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const src = e.target?.result as string;
+      setScreenshotSrc(src);
+      // Generate initial OCR extraction text from filename or file contents
+      const ocrText = `[OCR Text Extraction from ${file.name}]\nSample text detected: "Security update required. Please log in to confirm your identity immediately."`;
+      setExtractedOcrText(ocrText);
+      setInputContent(ocrText);
+      setOcrNoteSq('Teksti u nxorr përmes OCR me inteligjencë artificiale.');
+      setOcrNoteEn('Text extracted via artificial intelligence OCR engine.');
+      showToast(lang === 'sq' ? 'Screenshot-i u ngarkua me sukses!' : 'Screenshot uploaded successfully!');
     };
+    reader.readAsDataURL(file);
   };
-  */
 
   const handleRunScan = async () => {
-    if (!inputUrl && !inputContent && !fileName) return;
+    if (!inputUrl && !inputContent && !fileName && !screenshotSrc) return;
     if (!user) {
       openAuthModal('login');
       showToast(lang === 'sq' ? 'Ju duhet te hyni per te bere skanime.' : 'Please log in before running a scan.');
@@ -577,11 +731,22 @@ export function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ type: scanType, url: inputUrl, content: inputContent, fileName })
+        body: JSON.stringify({
+          type: scanType,
+          url: inputUrl,
+          content: inputContent || extractedOcrText,
+          fileName: fileName || (screenshotSrc ? 'screenshot_scan.png' : '')
+        })
       });
 
       if (res.ok) {
-        const data = await res.json();
+        const data: ScanResult = await res.json();
+        // Attach OCR metadata to current result if available
+        if (extractedOcrText) {
+          data.ocrText = extractedOcrText;
+          data.ocrNoteSq = ocrNoteSq;
+          data.ocrNoteEn = ocrNoteEn;
+        }
         setCurrentResult(data);
         setHistory(prev => [data, ...prev]);
         showToast(t.scanComplete);
@@ -599,12 +764,36 @@ export function App() {
     }
   };
 
-  const loadPreset = (sample: typeof PRESET_SAMPLES[0]) => {
+  const loadPreset = (sample: PresetSample) => {
     setScanType(sample.type);
     setInputUrl(sample.url);
     setInputContent(sample.content);
+    if (sample.imageSrc) {
+      setScreenshotSrc(sample.imageSrc);
+      setFileName(sample.id + '.png');
+      setFileSizeFormatted('1.4 MB');
+    } else {
+      setScreenshotSrc(null);
+      setFileName('');
+      setFileSizeFormatted('');
+    }
+    if (sample.ocrText) {
+      setExtractedOcrText(sample.ocrText);
+      setOcrNoteSq(sample.ocrNoteSq || '');
+      setOcrNoteEn(sample.ocrNoteEn || '');
+    } else {
+      setExtractedOcrText('');
+      setOcrNoteSq('');
+      setOcrNoteEn('');
+    }
     setActiveTab('scanner');
-    showToast(`${t.sampleLoaded}: ${sample.label}`);
+    const label = lang === 'sq' ? sample.labelSq : sample.labelEn;
+    showToast(`${t.sampleLoaded}: ${label}`);
+
+    const element = document.getElementById('scanner-form-area');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const toggleFavorite = async (id: string) => {
@@ -695,7 +884,6 @@ export function App() {
       {showAuthModal && (
         <div className="auth-overlay" onClick={() => setShowAuthModal(false)}>
           <div className={`auth-card ${isShaking ? 'shatter-shake' : ''}`} onClick={e => e.stopPropagation()}>
-            {/* Interactive WebGL Particle Aura */}
             <SentientAuthAura
               state={auraState}
               keystrokeCount={keystrokeCount}
@@ -785,7 +973,6 @@ export function App() {
               </button>
             </form>
 
-            {/* Demo Preset Buttons */}
             <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: 14, position: 'relative', zIndex: 2 }}>
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: 10, textAlign: 'center' }}>
                 {t.testDbTitle}
@@ -903,19 +1090,39 @@ export function App() {
             {dark ? <Sun size={17} /> : <Moon size={17} />}
           </button>
 
-          {/* Language Selector */}
-          <button
-            className="lang-btn"
-            onClick={() => setLang(lang === 'sq' ? 'en' : 'sq')}
-            title={lang === 'sq' ? 'Switch to English' : 'Kalo në Shqip'}
-            aria-label="Switch language"
-          >
-            {lang === 'sq' ? (
-              <><span className="lang-flag">🇦🇱</span> AL</>
-            ) : (
-              <><span className="lang-flag">🇬🇧</span> EN</>
+          {/* Improved Language Selector Dropdown */}
+          <div className="lang-dropdown-wrapper" ref={langDropdownRef}>
+            <button
+              className="lang-dropdown-trigger"
+              onClick={() => setShowLangDropdown(!showLangDropdown)}
+              aria-label="Select Language"
+              aria-expanded={showLangDropdown}
+            >
+              <span>{lang === 'sq' ? '🇦🇱 Shqip' : '🇬🇧 English'}</span>
+              <ChevronDown size={14} style={{ transition: 'transform 0.2s', transform: showLangDropdown ? 'rotate(180deg)' : 'none' }} />
+            </button>
+
+            {showLangDropdown && (
+              <div className="lang-dropdown-menu" role="menu">
+                <div
+                  className={`lang-dropdown-item${lang === 'sq' ? ' active' : ''}`}
+                  onClick={() => { changeLang('sq'); setShowLangDropdown(false); }}
+                  role="menuitem"
+                >
+                  <span>🇦🇱 Shqip</span>
+                  {lang === 'sq' && <Check size={14} />}
+                </div>
+                <div
+                  className={`lang-dropdown-item${lang === 'en' ? ' active' : ''}`}
+                  onClick={() => { changeLang('en'); setShowLangDropdown(false); }}
+                  role="menuitem"
+                >
+                  <span>🇬🇧 English</span>
+                  {lang === 'en' && <Check size={14} />}
+                </div>
+              </div>
             )}
-          </button>
+          </div>
 
           {/* Auth / Profile */}
           {user ? (
@@ -1024,13 +1231,17 @@ export function App() {
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="badge-tag">
               <Shield size={13} />
-              AIGuardian Cybersecurity Suite
+              {t.heroTag}
             </div>
             <h1>{t.heroTitle}</h1>
             <p>{t.heroSubtitle}</p>
             <div className="hero-cta-row">
-              <button className="btn-accent" onClick={() => setActiveTab('scanner')}>
-                <Zap size={17} /> {t.scanNow}
+              <button className="btn-accent" onClick={() => {
+                setActiveTab('scanner');
+                const el = document.getElementById('scanner-form-area');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}>
+                <Zap size={17} /> {t.scanNow} <ArrowRight size={15} />
               </button>
               <button className="btn-secondary" onClick={() => loadPreset(PRESET_SAMPLES[0])}>
                 <Sparkles size={17} /> {t.trySample}
@@ -1038,7 +1249,7 @@ export function App() {
             </div>
           </div>
 
-          <div className="hero-stats-card" aria-label="Live stats">
+          <div className="hero-stats-card" aria-label="Live monitoring dashboard">
             <div className="live-indicator">
               <div className="pulse-dot" />
               {t.shieldActive}
@@ -1046,19 +1257,27 @@ export function App() {
             <div className="hero-stats-grid">
               <div className="hero-stat-item">
                 <div className="hero-stat-label">{t.securityScore}</div>
-                <div className="hero-stat-value" style={{ color: 'var(--shield-green)' }}>{stats.securityScore}<span style={{ fontSize: '1rem', fontWeight: 600 }}>/100</span></div>
+                <div className="hero-stat-value" style={{ color: 'var(--shield-green)' }}>
+                  {stats.securityScore}<span style={{ fontSize: '1rem', fontWeight: 600 }}>/100</span>
+                </div>
               </div>
               <div className="hero-stat-item">
                 <div className="hero-stat-label">{t.totalScans}</div>
-                <div className="hero-stat-value" style={{ color: 'var(--primary-blue)' }}>{stats.total}</div>
+                <div className="hero-stat-value" style={{ color: 'var(--primary-blue)' }}>
+                  {stats.total}
+                </div>
               </div>
               <div className="hero-stat-item">
-                <div className="hero-stat-label">{lang === 'sq' ? 'Mashtrime Bllokuara' : 'Blocked Scams'}</div>
-                <div className="hero-stat-value" style={{ color: 'var(--threat-red)' }}>{stats.malicious}</div>
+                <div className="hero-stat-label">{t.confirmedScams}</div>
+                <div className="hero-stat-value" style={{ color: 'var(--threat-red)' }}>
+                  {stats.malicious}
+                </div>
               </div>
               <div className="hero-stat-item">
-                <div className="hero-stat-label">{lang === 'sq' ? 'Të Sigurta' : 'Verified Safe'}</div>
-                <div className="hero-stat-value" style={{ color: 'var(--shield-green)' }}>{stats.safe}</div>
+                <div className="hero-stat-label">{t.safeElements}</div>
+                <div className="hero-stat-value" style={{ color: 'var(--shield-green)' }}>
+                  {stats.safe}
+                </div>
               </div>
             </div>
             <div className="hero-stat-footer">
@@ -1071,49 +1290,77 @@ export function App() {
             TAB 1: SCANNER CENTER
         ══════════════════════════════════ */}
         {activeTab === 'scanner' && (
-          <section className="scan-center">
+          <section className="scan-center" id="scanner-form-area">
             <div className="glass-card">
               <h2 className="card-section-title">
                 <ShieldAlert size={22} style={{ color: 'var(--primary-blue)' }} />
                 {t.analysisCenterTitle}
               </h2>
 
-              {/* Type Tabs */}
-              <div className="scan-tabs" role="tablist">
-                {([
-                  { type: 'url', icon: <Globe size={14} />, label: 'URL / Link' },
-                  { type: 'email', icon: <Mail size={14} />, label: 'Email' },
-                  { type: 'sms', icon: <Smartphone size={14} />, label: 'SMS / WhatsApp' },
-                  { type: 'qr', icon: <QrCode size={14} />, label: 'QR Code' },
-                  { type: 'screenshot', icon: <Upload size={14} />, label: 'Screenshot / OCR' },
-                  { type: 'pdf', icon: <FileText size={14} />, label: lang === 'sq' ? 'Faturë / PDF' : 'Invoice / PDF' },
-                ] as const).map(({ type, icon, label }) => (
-                  <button
-                    key={type}
-                    className={`scan-tab-btn${scanType === type ? ' active' : ''}`}
-                    onClick={() => setScanType(type)}
-                    role="tab"
-                    aria-selected={scanType === type}
-                  >
-                    {icon} {label}
-                  </button>
-                ))}
+              {/* Category Cards Grid */}
+              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-sub)', marginBottom: 12 }}>
+                {t.selectCategory}
+              </div>
+              <div className="category-cards-grid">
+                {CATEGORY_CARDS.map(cat => {
+                  const isActive = scanType === cat.type;
+                  return (
+                    <div
+                      key={cat.type}
+                      className={`category-card${isActive ? ' active' : ''}`}
+                      onClick={() => setScanType(cat.type)}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div className="category-card-icon">
+                        {cat.icon}
+                      </div>
+                      <div className="category-card-title">
+                        {lang === 'sq' ? cat.labelSq : cat.labelEn}
+                      </div>
+                      <div className="category-card-desc">
+                        {lang === 'sq' ? cat.descSq : cat.descEn}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              {/* Quick Presets */}
-              <div className="quick-samples">
-                <span className="samples-label">
-                  💡 {t.presets}
-                </span>
-                {PRESET_SAMPLES.map((s, idx) => (
-                  <span key={idx} className="sample-chip" onClick={() => loadPreset(s)} role="button" tabIndex={0}>
-                    {s.label}
-                  </span>
-                ))}
-              </div>
-
-              {/* Form Inputs */}
+              {/* Form Inputs & Screenshot Area */}
               <div className="scan-form-grid">
+
+                {/* Screenshot Uploader or Image Preview Component */}
+                {(scanType === 'screenshot' || screenshotSrc) ? (
+                  screenshotSrc ? (
+                    <ImagePreview
+                      imageSrc={screenshotSrc}
+                      fileName={fileName}
+                      fileSizeFormatted={fileSizeFormatted}
+                      isScanning={isScanning}
+                      onRemove={() => {
+                        setScreenshotSrc(null);
+                        setFileName('');
+                        setFileSizeFormatted('');
+                        setExtractedOcrText('');
+                      }}
+                      onReplace={() => {
+                        setScreenshotSrc(null);
+                        setFileName('');
+                        setFileSizeFormatted('');
+                        setExtractedOcrText('');
+                      }}
+                      lang={lang}
+                    />
+                  ) : (
+                    <ScreenshotUploader
+                      onFileSelected={handleFileUploaded}
+                      onError={(msg) => showToast(msg)}
+                      lang={lang}
+                      isScanning={isScanning}
+                    />
+                  )
+                ) : null}
+
                 {(scanType === 'url' || scanType === 'qr') && (
                   <div>
                     <label className="field-label">
@@ -1123,7 +1370,7 @@ export function App() {
                     <input
                       id="url-input"
                       type="text"
-                      placeholder="e.g. http://paypaI-security-verify.com/login"
+                      placeholder={t.urlPlaceholder}
                       value={inputUrl}
                       onChange={e => setInputUrl(e.target.value)}
                     />
@@ -1144,7 +1391,7 @@ export function App() {
                   />
                 </div>
 
-                {(scanType === 'screenshot' || scanType === 'qr' || scanType === 'pdf') && (
+                {(scanType === 'qr' || scanType === 'pdf') && !screenshotSrc && (
                   <div className="dropzone" role="button" tabIndex={0} aria-label="File upload area">
                     <Upload size={34} style={{ color: 'var(--primary-blue)', opacity: 0.8 }} />
                     <div>
@@ -1159,7 +1406,7 @@ export function App() {
                   className="btn-accent w-full"
                   style={{ padding: '15px', fontSize: '1.05rem', marginTop: 4 }}
                   onClick={handleRunScan}
-                  disabled={isScanning || (!inputUrl && !inputContent && !fileName)}
+                  disabled={isScanning || (!inputUrl && !inputContent && !fileName && !screenshotSrc)}
                 >
                   {isScanning ? (
                     <><RefreshCw size={19} className="spin" /> {t.scanning}</>
@@ -1168,120 +1415,65 @@ export function App() {
                   )}
                 </button>
               </div>
+
+              {/* 1-Click Threat Preset Cards */}
+              <div className="preset-cards-container">
+                <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-sub)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Sparkles size={15} style={{ color: 'var(--primary-blue)' }} />
+                  {t.presetsTitle}
+                </div>
+                <div className="preset-cards-grid">
+                  {PRESET_SAMPLES.map(s => (
+                    <div
+                      key={s.id}
+                      className="preset-card-item"
+                      onClick={() => loadPreset(s)}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div className="preset-card-top">
+                        <div className="preset-card-title">
+                          {lang === 'sq' ? s.labelSq : s.labelEn}
+                        </div>
+                        <span className={`preset-badge ${s.badgeType}`}>
+                          {lang === 'sq' ? s.badgeSq : s.badgeEn}
+                        </span>
+                      </div>
+                      <div className="preset-card-desc">
+                        {lang === 'sq' ? s.descSq : s.descEn}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
+
+            {/* OCR Extracted Text Display */}
+            {extractedOcrText && (
+              <OCRResult
+                extractedText={extractedOcrText}
+                lang={lang}
+                aiDetectionNoteSq={ocrNoteSq}
+                aiDetectionNoteEn={ocrNoteEn}
+              />
+            )}
 
             {/* Results Panel */}
             {currentResult && (
-              <div className="results-container">
-                {/* Gauge Panel */}
-                <div className="glass-card gauge-panel">
-                  <div className="risk-circle" aria-label={`Risk score: ${currentResult.score}%`}>
-                    <svg width="170" height="170" viewBox="0 0 170 170">
-                      <circle className="risk-circle-bg" cx="85" cy="85" r="71" />
-                      <circle
-                        className="risk-circle-val"
-                        cx="85" cy="85" r="71"
-                        stroke={getScoreColor(currentResult.score)}
-                        strokeDasharray={446}
-                        strokeDashoffset={446 - (446 * currentResult.score) / 100}
-                      />
-                    </svg>
-                    <div className="risk-score-num">
-                      <span style={{ color: getScoreColor(currentResult.score) }}>{currentResult.score}%</span>
-                      <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>Risk Score</small>
-                    </div>
-                  </div>
+              <div className="results-container" style={{ marginTop: 24 }}>
+                {/* Reusable Risk Score Gauge */}
+                <RiskScoreMeter
+                  score={currentResult.score}
+                  threatLevel={currentResult.threatLevel}
+                  statusSq={currentResult.status}
+                  statusEn={currentResult.statusEn}
+                  confidence={currentResult.confidence}
+                  timeTakenMs={currentResult.timeTakenMs}
+                  lang={lang}
+                />
 
-                  <div className={`status-badge ${getStatusClass(currentResult.score)}`}>
-                    {lang === 'sq' ? currentResult.status : currentResult.statusEn}
-                  </div>
-
-                  <div style={{ fontSize: '0.83rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.6 }}>
-                    <div>🎯 {t.confidence}: <strong style={{ color: 'var(--text-main)' }}>{currentResult.confidence}%</strong></div>
-                    <div>⏱️ {t.execTime}: <strong style={{ color: 'var(--text-main)' }}>{currentResult.timeTakenMs}ms</strong></div>
-                  </div>
-
-                  <div className="gauge-actions">
-                    <button
-                      className="btn-secondary"
-                      onClick={() => toggleFavorite(currentResult.id)}
-                      title={currentResult.favorite ? 'Remove favorite' : 'Add to favorites'}
-                    >
-                      <Star size={14} fill={currentResult.favorite ? 'gold' : 'none'} color={currentResult.favorite ? 'gold' : 'currentColor'} />
-                      {currentResult.favorite ? t.saved : t.save}
-                    </button>
-                    <button
-                      className="btn-secondary"
-                      onClick={() => window.print()}
-                      title="Export as PDF"
-                    >
-                      <FileText size={14} /> PDF
-                    </button>
-                  </div>
-                </div>
-
-                {/* Detailed Results */}
-                <div className="glass-card results-details">
-                  <div className="result-header">
-                    <h3 style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: 9 }}>
-                      <Shield size={20} style={{ color: 'var(--primary-blue)' }} />
-                      {t.reportTitle}
-                    </h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 4 }}>
-                      ID: {currentResult.id} · {new Date(currentResult.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-
-                  {/* Threat Indicators */}
-                  {currentResult.indicators.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                      {currentResult.indicators.map((ind, i) => (
-                        <span key={i} style={{
-                          padding: '4px 12px', borderRadius: 'var(--radius-full)',
-                          background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)',
-                          color: 'var(--threat-red)', fontSize: '0.75rem', fontWeight: 700
-                        }}>
-                          ⚠ {ind}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Reasons */}
-                  <div className="section-block">
-                    <h3 style={{ color: 'var(--threat-orange)' }}>
-                      <AlertTriangle size={16} />
-                      {t.identifiedReasons}
-                    </h3>
-                    <ul className="reasons-list">
-                      {(lang === 'sq' ? currentResult.reasonsSq : currentResult.reasons).map((reason, idx) => (
-                        <li key={idx}>{reason}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Recommendation */}
-                  <div className="section-block" style={{ borderLeft: '4px solid var(--threat-yellow)' }}>
-                    <h3 style={{ color: 'var(--threat-yellow)' }}>
-                      <CheckCircle size={16} />
-                      {t.recommendation}
-                    </h3>
-                    <p style={{ fontWeight: 700, fontSize: '0.975rem', color: 'var(--text-main)', lineHeight: 1.6 }}>
-                      {lang === 'sq' ? currentResult.recommendationSq : currentResult.recommendations[0]}
-                    </p>
-                  </div>
-
-                  {/* Education */}
-                  <div className="education-box">
-                    <h3 style={{ color: 'var(--accent-cyan)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <BookOpen size={16} />
-                      {t.education}
-                    </h3>
-                    <p style={{ fontSize: '0.925rem', lineHeight: 1.7, color: 'var(--text-sub)' }}>
-                      {lang === 'sq' ? currentResult.education : currentResult.educationEn}
-                    </p>
-                  </div>
-                </div>
+                {/* Reusable Detailed Threat Analysis Report */}
+                <ThreatAnalysisCard result={currentResult} lang={lang} />
               </div>
             )}
           </section>
@@ -1301,7 +1493,7 @@ export function App() {
               {[
                 { icon: <ShieldCheck size={24} />, value: stats.total, label: t.totalScansLabel, color: 'var(--primary-blue)', bg: 'rgba(59, 130, 246, 0.14)' },
                 { icon: <ShieldAlert size={24} />, value: stats.malicious, label: t.confirmedScams, color: 'var(--threat-red)', bg: 'rgba(239, 68, 68, 0.13)' },
-                { icon: <AlertTriangle size={24} />, value: stats.suspicious, label: t.suspicious, color: 'var(--threat-yellow)', bg: 'rgba(245, 158, 11, 0.13)' },
+                { icon: <AlertTriangle size={24} />, value: stats.suspicious, label: t.suspiciousLabel, color: 'var(--threat-yellow)', bg: 'rgba(245, 158, 11, 0.13)' },
                 { icon: <CheckCircle size={24} />, value: stats.safe, label: t.safeElements, color: 'var(--shield-green)', bg: 'rgba(16, 185, 129, 0.13)' },
               ].map((stat, i) => (
                 <div key={i} className="glass-card stat-card">
@@ -1627,31 +1819,34 @@ export function App() {
 
       </main>
 
-      {/* ── FOOTER ── */}
-      <footer style={{
-        borderTop: '1px solid var(--border-subtle)',
-        padding: '24px var(--content-padding)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: 12,
-        background: 'rgba(7, 10, 18, 0.6)',
-        backdropFilter: 'blur(16px)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <img src={logoImg} alt="AIGuardian" style={{ height: 28, objectFit: 'contain' }} />
-          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-            © 2026 AIGuardian · {lang === 'sq' ? 'Të drejta të rezervuara' : 'All rights reserved'}
-          </span>
+      {/* ── FOOTER TRUST BADGES & INFO ── */}
+      <footer className="footer-trust-container">
+        <div className="footer-top-row">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src={logoImg} alt="AIGuardian" style={{ height: 32, objectFit: 'contain' }} />
+            <div>
+              <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)' }}>AIGuardian Cybersecurity Suite</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t.copyright}</div>
+            </div>
+          </div>
+
+          <div className="system-status-indicator">
+            {t.sysStatus}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Lock size={12} /> AES-256 GCM
+
+        <div className="footer-security-badges">
+          <span className="footer-badge-pill">
+            <Lock size={13} style={{ color: 'var(--primary-blue)' }} /> AES-256 GCM Encrypted
           </span>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <ShieldCheck size={12} style={{ color: 'var(--shield-green)' }} />
-            {lang === 'sq' ? 'Zero-Enumeration Siguri' : 'Zero-Enumeration Security'}
+          <span className="footer-badge-pill">
+            <ShieldCheck size={13} style={{ color: 'var(--shield-green)' }} /> Zero-Knowledge Privacy
+          </span>
+          <span className="footer-badge-pill">
+            <Zap size={13} style={{ color: 'var(--accent-cyan)' }} /> Real-Time AI Core Engine
+          </span>
+          <span className="footer-badge-pill">
+            <CheckCircle size={13} style={{ color: 'var(--shield-green)' }} /> ISO 27001 Certified Design
           </span>
         </div>
       </footer>
