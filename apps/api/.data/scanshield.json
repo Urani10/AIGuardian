@@ -17,6 +17,13 @@
         "twoFactor": false
       },
       "activity": [
+        "Login at 2026-07-25T15:36:58.232Z",
+        "Login at 2026-07-25T15:20:40.354Z",
+        "Login at 2026-07-25T15:01:06.988Z",
+        "Login at 2026-07-25T14:13:24.311Z",
+        "Login at 2026-07-25T13:50:32.687Z",
+        "Login at 2026-07-25T13:47:29.669Z",
+        "Login at 2026-07-25T13:43:12.876Z",
         "Login at 2026-07-25T13:21:47.003Z",
         "Login at 2026-07-25T10:16:52.769Z",
         "Login at 2026-07-25T10:15:02.227Z",
@@ -48,25 +55,22 @@
   ],
   "scans": [
     {
-      "id": "sc_5wa6i2tm4",
-      "score": 26,
-      "threatLevel": "Low Risk",
+      "id": "sc_4dltap5lz",
+      "score": 0,
+      "threatLevel": "Safe",
       "status": "I Sigurt",
-      "statusEn": "Low Risk",
-      "confidence": 86,
-      "explanation": "AIGuardian found 2 risk signals and assigned a 26% risk score.",
-      "explanationSq": "AIGuardian gjeti 2 sinjale rreziku dhe vendosi skor rreziku 26%.",
+      "statusEn": "Safe",
+      "confidence": 66,
+      "explanation": "AIGuardian found no strong fraud indicators and assigned a 0% risk score.",
+      "explanationSq": "AIGuardian nuk gjeti tregues te forte mashtrimi dhe vendosi skor rreziku 0%.",
       "indicators": [
-        "Unencrypted HTTP Link",
-        "Artificial Urgency"
+        "No Strong Fraud Signal"
       ],
       "reasons": [
-        "The link uses unencrypted HTTP: paypai-security-verify.com.",
-        "The message uses time pressure or account-loss threats to reduce careful verification."
+        "No credential harvesting, payment redirection, suspicious URL, or high-pressure language was detected."
       ],
       "reasonsSq": [
-        "Linku perdor HTTP te paenkriptuar: paypai-security-verify.com.",
-        "Mesazhi perdor presion kohe ose kercenim bllokimi per te ulur verifikimin e kujdesshem."
+        "Nuk u gjet kerkese per kredenciale, ridrejtim pagese, URL e dyshimte ose presion urgjence."
       ],
       "recommendations": [
         "No strong fraud signals were detected. Continue with normal caution and verify domains before sharing data."
@@ -79,59 +83,547 @@
         "Verify suspicious senders through an independent trusted channel.",
         "Enable two-factor authentication on sensitive accounts."
       ],
-      "timeTakenMs": 25,
-      "createdAt": "2026-07-25T13:21:49.955Z",
+      "timeTakenMs": 4,
+      "createdAt": "2026-07-25T15:01:56.796Z",
       "type": "url",
       "favorite": false,
       "userId": "a0ya9w8jtjms07ptf0",
-      "raw": "URGJENTE: Llogaria juaj do te bllokohet brenda 24 oreve! Klikoni te verifikoni fjalekalimin: http://paypaI-security-verify.com/login"
+      "raw": ""
     },
     {
-      "id": "sc_swxbopi5x",
-      "score": 99,
-      "threatLevel": "Critical",
-      "status": "Mashtrim i Konfirmuar",
-      "statusEn": "Confirmed Scam",
-      "confidence": 99,
-      "explanation": "ScanShield AI detektoi 3 tregues të mundshëm rreziku me nivel rreziku 99%.",
-      "explanationSq": "ScanShield AI detektoi 3 tregues të mundshëm rreziku me nivel rreziku 99%.",
+      "id": "sc_djb9v7pxy",
+      "score": 0,
+      "threatLevel": "Safe",
+      "status": "I Sigurt",
+      "statusEn": "Safe",
+      "confidence": 66,
+      "explanation": "AIGuardian found no strong fraud indicators and assigned a 0% risk score.",
+      "explanationSq": "AIGuardian nuk gjeti tregues te forte mashtrimi dhe vendosi skor rreziku 0%.",
       "indicators": [
-        "Psychological Urgency",
-        "Credential Harvesting",
-        "Suspicious Link / Obfuscation"
+        "No Strong Fraud Signal"
       ],
       "reasons": [
-        "Detected psychological manipulation creating artificial urgency to panic the target into acting without thinking.",
-        "Detected request for sensitive login credentials, PINs, or password verification links.",
-        "Detected unencrypted HTTP URL or high-risk top-level domain / shortened URL obfuscation."
+        "No credential harvesting, payment redirection, suspicious URL, or high-pressure language was detected."
       ],
       "reasonsSq": [
-        "U identifikua presion psikologjik dhe urgjencë fallco që synon të krijojë panik te përdoruesi.",
-        "Kërkesë direkte për verifikimin e fjalëkalimit, PIN-it ose të dhënave sensitive të hyrjes.",
-        "Përdorim i link-ut të paencriptuar HTTP, shkurtuesve të link-ut ose domain-eve me rrezik të lartë (.xyz, .info)."
+        "Nuk u gjet kerkese per kredenciale, ridrejtim pagese, URL e dyshimte ose presion urgjence."
       ],
       "recommendations": [
-        "Do NOT click any links, enter credentials, or open attachments.",
-        "Block sender immediately and report the threat.",
-        "Change passwords if you previously entered details on this link."
+        "No strong fraud signals were detected. Continue with normal caution and verify domains before sharing data."
       ],
-      "recommendationSq": "MOS klikoni asnjë link, MOS plotësoni formularë dhe MOS hapni bashkëngjitje. Bllokoni dërguesin dhe raportojeni menjanëherë!",
-      "education": "Sulmuesit përdorin \"Inxhinierinë Sociale\" dhe panikun artificial. Duke pretenduar se llogaria juaj do të bllokohet brenda pak orësh, ata ju shtyjnë të vepron pa menduar gjatë dhe të klikoni në mezahe apo linke ku ju vjedhin fjalëkalimin.",
-      "educationEn": "Attackers use social engineering and fake login portals to capture credentials and financial information by creating artificial urgency.",
+      "recommendationSq": "Nuk u gjeten sinjale te forta mashtrimi. Vazhdoni me kujdes standard dhe kontrolloni domain-in para se te jepni te dhena.",
+      "education": "Analiza nuk gjeti kombinim te forte sinjalesh phishing. Rezultati i ulet nuk zevendeson kujdesin per domain-e, bashkengjitje dhe kerkesa pagesash.",
+      "educationEn": "The analysis did not find a strong combination of phishing signals. A low score does not replace caution around domains, attachments, and payment requests.",
       "nextSteps": [
-        "Ruani këtë raport për historikun e sigurisë.",
-        "Ndarja e raportit me ekipin tuaj të IT/Security.",
-        "Aktivizoni vërtetimin me dy faktorë (2FA) në llogaritë tuaja."
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
       ],
-      "timeTakenMs": 99,
-      "createdAt": "2026-07-25T10:15:11.699Z",
+      "timeTakenMs": 8,
+      "createdAt": "2026-07-25T15:01:27.110Z",
       "type": "url",
       "favorite": false,
       "userId": "a0ya9w8jtjms07ptf0",
-      "raw": "URGJENTE: Llogaria juaj do te bllokohet brenda 24 oreve! Klikoni te verifikoni fjalekalimin: http://paypaI-security-verify.com/login"
+      "raw": ""
+    },
+    {
+      "id": "sc_do7z4on17",
+      "score": 52,
+      "threatLevel": "Medium Risk",
+      "status": "Suspekt",
+      "statusEn": "Suspicious",
+      "confidence": 85,
+      "explanation": "AIGuardian found 2 risk signals and assigned a 52% risk score.",
+      "explanationSq": "AIGuardian gjeti 2 sinjale rreziku dhe vendosi skor rreziku 52%.",
+      "indicators": [
+        "High-Risk Domain TLD",
+        "Crypto Wallet Drainer"
+      ],
+      "reasons": [
+        "The domain uses a TLD commonly abused in phishing campaigns: .xyz.",
+        "The message asks for wallet connection, token approval, or private recovery material."
+      ],
+      "reasonsSq": [
+        "Domain-i perdor nje TLD qe abuzohet shpesh ne phishing: .xyz.",
+        "Mesazhi kerkon lidhje kuletash, miratim tokeni ose te dhena private rikuperimi."
+      ],
+      "recommendations": [
+        "Verify the sender through an official channel.",
+        "Open the service by typing the official domain directly.",
+        "Do not share passwords, payment details, or one-time codes."
+      ],
+      "recommendationSq": "Verifikoni derguesin nga kanal zyrtar dhe hapni sherbimin vetem duke shkruar domain-in zyrtar ne browser.",
+      "education": "Analiza gjeti sinjale te dyshimta si High-Risk Domain TLD. Keto nuk konfirmojne gjithmone mashtrim, por kerkojne verifikim jashte mesazhit.",
+      "educationEn": "The analysis found suspicious signals such as High-Risk Domain TLD. These do not always confirm fraud, but they require verification outside the message.",
+      "nextSteps": [
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
+      ],
+      "timeTakenMs": 4,
+      "createdAt": "2026-07-25T14:17:16.661Z",
+      "type": "qr",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "Scan QR code to claim 500 USDT giveaway. Connect wallet and approve token transfer."
+    },
+    {
+      "id": "sc_htjobwla3",
+      "score": 40,
+      "threatLevel": "Medium Risk",
+      "status": "Suspekt",
+      "statusEn": "Suspicious",
+      "confidence": 95,
+      "explanation": "AIGuardian found 3 risk signals and assigned a 40% risk score.",
+      "explanationSq": "AIGuardian gjeti 3 sinjale rreziku dhe vendosi skor rreziku 40%.",
+      "indicators": [
+        "Unencrypted HTTP Link",
+        "High-Risk Domain TLD",
+        "Artificial Urgency"
+      ],
+      "reasons": [
+        "The link uses unencrypted HTTP: banka-al-verify.info.",
+        "The domain uses a TLD commonly abused in phishing campaigns: .info.",
+        "The message uses time pressure or account-loss threats to reduce careful verification."
+      ],
+      "reasonsSq": [
+        "Linku perdor HTTP te paenkriptuar: banka-al-verify.info.",
+        "Domain-i perdor nje TLD qe abuzohet shpesh ne phishing: .info.",
+        "Mesazhi perdor presion kohe ose kercenim bllokimi per te ulur verifikimin e kujdesshem."
+      ],
+      "recommendations": [
+        "Verify the sender through an official channel.",
+        "Open the service by typing the official domain directly.",
+        "Do not share passwords, payment details, or one-time codes."
+      ],
+      "recommendationSq": "Verifikoni derguesin nga kanal zyrtar dhe hapni sherbimin vetem duke shkruar domain-in zyrtar ne browser.",
+      "education": "Analiza gjeti sinjale te dyshimta si Unencrypted HTTP Link. Keto nuk konfirmojne gjithmone mashtrim, por kerkojne verifikim jashte mesazhit.",
+      "educationEn": "The analysis found suspicious signals such as Unencrypted HTTP Link. These do not always confirm fraud, but they require verification outside the message.",
+      "nextSteps": [
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
+      ],
+      "timeTakenMs": 6,
+      "createdAt": "2026-07-25T14:17:10.731Z",
+      "type": "sms",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "URGJENTE: Llogaria juaj bankare eshte bllokuar! Klikoni te verifikoni fjalekalimin menjehere: http://banka-al-verify.info/login"
+    },
+    {
+      "id": "sc_73gx7yb29",
+      "score": 50,
+      "threatLevel": "Medium Risk",
+      "status": "Suspekt",
+      "statusEn": "Suspicious",
+      "confidence": 95,
+      "explanation": "AIGuardian found 3 risk signals and assigned a 50% risk score.",
+      "explanationSq": "AIGuardian gjeti 3 sinjale rreziku dhe vendosi skor rreziku 50%.",
+      "indicators": [
+        "Unencrypted HTTP Link",
+        "Credential Harvesting",
+        "Artificial Urgency"
+      ],
+      "reasons": [
+        "The link uses unencrypted HTTP: paypai-security-verify.com.",
+        "The content asks the user to verify or update credentials, a common phishing objective.",
+        "The message uses time pressure or account-loss threats to reduce careful verification."
+      ],
+      "reasonsSq": [
+        "Linku perdor HTTP te paenkriptuar: paypai-security-verify.com.",
+        "Permbajtja kerkon verifikim ose perditesim kredencialesh, nje objektiv tipik phishing.",
+        "Mesazhi perdor presion kohe ose kercenim bllokimi per te ulur verifikimin e kujdesshem."
+      ],
+      "recommendations": [
+        "Verify the sender through an official channel.",
+        "Open the service by typing the official domain directly.",
+        "Do not share passwords, payment details, or one-time codes."
+      ],
+      "recommendationSq": "Verifikoni derguesin nga kanal zyrtar dhe hapni sherbimin vetem duke shkruar domain-in zyrtar ne browser.",
+      "education": "Analiza gjeti sinjale te dyshimta si Unencrypted HTTP Link. Keto nuk konfirmojne gjithmone mashtrim, por kerkojne verifikim jashte mesazhit.",
+      "educationEn": "The analysis found suspicious signals such as Unencrypted HTTP Link. These do not always confirm fraud, but they require verification outside the message.",
+      "nextSteps": [
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
+      ],
+      "timeTakenMs": 12,
+      "createdAt": "2026-07-25T14:17:02.475Z",
+      "type": "url",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "Urgent security verification required for your PayPal wallet account. Verify password immediately or account will be suspended within 24 hours."
+    },
+    {
+      "id": "sc_58llt9itt",
+      "score": 0,
+      "threatLevel": "Safe",
+      "status": "I Sigurt",
+      "statusEn": "Safe",
+      "confidence": 66,
+      "explanation": "AIGuardian found no strong fraud indicators and assigned a 0% risk score.",
+      "explanationSq": "AIGuardian nuk gjeti tregues te forte mashtrimi dhe vendosi skor rreziku 0%.",
+      "indicators": [
+        "No Strong Fraud Signal"
+      ],
+      "reasons": [
+        "No credential harvesting, payment redirection, suspicious URL, or high-pressure language was detected."
+      ],
+      "reasonsSq": [
+        "Nuk u gjet kerkese per kredenciale, ridrejtim pagese, URL e dyshimte ose presion urgjence."
+      ],
+      "recommendations": [
+        "No strong fraud signals were detected. Continue with normal caution and verify domains before sharing data."
+      ],
+      "recommendationSq": "Nuk u gjeten sinjale te forta mashtrimi. Vazhdoni me kujdes standard dhe kontrolloni domain-in para se te jepni te dhena.",
+      "education": "Analiza nuk gjeti kombinim te forte sinjalesh phishing. Rezultati i ulet nuk zevendeson kujdesin per domain-e, bashkengjitje dhe kerkesa pagesash.",
+      "educationEn": "The analysis did not find a strong combination of phishing signals. A low score does not replace caution around domains, attachments, and payment requests.",
+      "nextSteps": [
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
+      ],
+      "timeTakenMs": 1,
+      "createdAt": "2026-07-25T13:52:44.252Z",
+      "type": "url",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "Official sign-in portal for PayPal."
+    },
+    {
+      "id": "sc_nchpxd0ts",
+      "score": 62,
+      "threatLevel": "Medium Risk",
+      "status": "Suspekt",
+      "statusEn": "Suspicious",
+      "confidence": 94,
+      "explanation": "AIGuardian found 3 risk signals and assigned a 62% risk score.",
+      "explanationSq": "AIGuardian gjeti 3 sinjale rreziku dhe vendosi skor rreziku 62%.",
+      "indicators": [
+        "Unencrypted HTTP Link",
+        "High-Risk Domain TLD",
+        "Crypto Wallet Drainer"
+      ],
+      "reasons": [
+        "The link uses unencrypted HTTP: claim-usdt-airdrop.xyz.",
+        "The domain uses a TLD commonly abused in phishing campaigns: .xyz.",
+        "The message asks for wallet connection, token approval, or private recovery material."
+      ],
+      "reasonsSq": [
+        "Linku perdor HTTP te paenkriptuar: claim-usdt-airdrop.xyz.",
+        "Domain-i perdor nje TLD qe abuzohet shpesh ne phishing: .xyz.",
+        "Mesazhi kerkon lidhje kuletash, miratim tokeni ose te dhena private rikuperimi."
+      ],
+      "recommendations": [
+        "Verify the sender through an official channel.",
+        "Open the service by typing the official domain directly.",
+        "Do not share passwords, payment details, or one-time codes."
+      ],
+      "recommendationSq": "Verifikoni derguesin nga kanal zyrtar dhe hapni sherbimin vetem duke shkruar domain-in zyrtar ne browser.",
+      "education": "Analiza gjeti sinjale te dyshimta si Unencrypted HTTP Link. Keto nuk konfirmojne gjithmone mashtrim, por kerkojne verifikim jashte mesazhit.",
+      "educationEn": "The analysis found suspicious signals such as Unencrypted HTTP Link. These do not always confirm fraud, but they require verification outside the message.",
+      "nextSteps": [
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
+      ],
+      "timeTakenMs": 1,
+      "createdAt": "2026-07-25T13:52:38.194Z",
+      "type": "qr",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "Scan QR code to claim 500 USDT giveaway. Connect wallet and approve token transfer."
+    },
+    {
+      "id": "sc_52bd9ro0v",
+      "score": 40,
+      "threatLevel": "Medium Risk",
+      "status": "Suspekt",
+      "statusEn": "Suspicious",
+      "confidence": 95,
+      "explanation": "AIGuardian found 3 risk signals and assigned a 40% risk score.",
+      "explanationSq": "AIGuardian gjeti 3 sinjale rreziku dhe vendosi skor rreziku 40%.",
+      "indicators": [
+        "Unencrypted HTTP Link",
+        "High-Risk Domain TLD",
+        "Artificial Urgency"
+      ],
+      "reasons": [
+        "The link uses unencrypted HTTP: banka-al-verify.info.",
+        "The domain uses a TLD commonly abused in phishing campaigns: .info.",
+        "The message uses time pressure or account-loss threats to reduce careful verification."
+      ],
+      "reasonsSq": [
+        "Linku perdor HTTP te paenkriptuar: banka-al-verify.info.",
+        "Domain-i perdor nje TLD qe abuzohet shpesh ne phishing: .info.",
+        "Mesazhi perdor presion kohe ose kercenim bllokimi per te ulur verifikimin e kujdesshem."
+      ],
+      "recommendations": [
+        "Verify the sender through an official channel.",
+        "Open the service by typing the official domain directly.",
+        "Do not share passwords, payment details, or one-time codes."
+      ],
+      "recommendationSq": "Verifikoni derguesin nga kanal zyrtar dhe hapni sherbimin vetem duke shkruar domain-in zyrtar ne browser.",
+      "education": "Analiza gjeti sinjale te dyshimta si Unencrypted HTTP Link. Keto nuk konfirmojne gjithmone mashtrim, por kerkojne verifikim jashte mesazhit.",
+      "educationEn": "The analysis found suspicious signals such as Unencrypted HTTP Link. These do not always confirm fraud, but they require verification outside the message.",
+      "nextSteps": [
+        "Save this report in the security history.",
+        "Verify suspicious senders through an independent trusted channel.",
+        "Enable two-factor authentication on sensitive accounts."
+      ],
+      "timeTakenMs": 2,
+      "createdAt": "2026-07-25T13:52:33.802Z",
+      "type": "sms",
+      "favorite": false,
+      "userId": "a0ya9w8jtjms07ptf0",
+      "raw": "URGJENTE: Llogaria juaj bankare eshte bllokuar! Klikoni te verifikoni fjalekalimin menjehere: http://banka-al-verify.info/login"
     }
   ],
   "notifications": [
+    {
+      "id": "sc_756j6ufr5",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T15:37:23.950Z"
+    },
+    {
+      "id": "sc_4dltap5lz",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T15:01:56.796Z"
+    },
+    {
+      "id": "sc_djb9v7pxy",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T15:01:27.110Z"
+    },
+    {
+      "id": "sc_do7z4on17",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 52.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T14:17:16.661Z"
+    },
+    {
+      "id": "sc_htjobwla3",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T14:17:10.731Z"
+    },
+    {
+      "id": "sc_73gx7yb29",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T14:17:02.475Z"
+    },
+    {
+      "id": "sc_58llt9itt",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:52:44.252Z"
+    },
+    {
+      "id": "sc_nchpxd0ts",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 62.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:52:38.194Z"
+    },
+    {
+      "id": "sc_52bd9ro0v",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:52:33.802Z"
+    },
+    {
+      "id": "sc_9ok9zqpl3",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:51:00.925Z"
+    },
+    {
+      "id": "sc_i4gp3e224",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:47:45.939Z"
+    },
+    {
+      "id": "sc_pecryqcz3",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:43:46.844Z"
+    },
+    {
+      "id": "sc_xara4v1in",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:43:40.228Z"
+    },
+    {
+      "id": "sc_h4nqt6tpf",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:35:19.468Z"
+    },
+    {
+      "id": "sc_yriv8r4jp",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Safe result with score 0.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:34:55.576Z"
+    },
+    {
+      "id": "sc_kna2eiw0b",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:34:22.593Z"
+    },
+    {
+      "id": "sc_5170kmtpg",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:24:22.416Z"
+    },
+    {
+      "id": "sc_33j94cw71",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:24:01.159Z"
+    },
+    {
+      "id": "sc_ncksmr2f2",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:58.766Z"
+    },
+    {
+      "id": "sc_vhqik82iy",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:49.624Z"
+    },
+    {
+      "id": "sc_tuamid22t",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:45.183Z"
+    },
+    {
+      "id": "sc_pubulg5am",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 50.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:39.623Z"
+    },
+    {
+      "id": "sc_jho5h2mts",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Medium Risk result with score 40.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:33.713Z"
+    },
+    {
+      "id": "sc_pbtv2c71m",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:26.880Z"
+    },
+    {
+      "id": "sc_4vcai8foc",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:23.580Z"
+    },
+    {
+      "id": "sc_i1zt37p30",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:18.333Z"
+    },
+    {
+      "id": "sc_n55crgiia",
+      "userId": "a0ya9w8jtjms07ptf0",
+      "title": "Scan completed",
+      "message": "Low Risk result with score 26.",
+      "severity": "info",
+      "read": false,
+      "createdAt": "2026-07-25T13:23:12.158Z"
+    },
     {
       "id": "sc_5wa6i2tm4",
       "userId": "a0ya9w8jtjms07ptf0",
